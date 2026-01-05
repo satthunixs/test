@@ -88,6 +88,11 @@
                 storageType: '', storageCapacity: '', monitor: '',
                 handoverDocument: null, handoverDocumentName: ''
             });
+            const input = document.getElementById("fileInput");
+if (!input || !input.files.length) {
+  alert("Chưa chọn file");
+  return;
+}
 
             // ==================== LOCAL STORAGE ====================
             useEffect(() => {
@@ -513,11 +518,7 @@ async function uploadFileToDrive() {
             // Copy phần còn lại của code từ artifact device-manager-app...
             // (Do giới hạn độ dài, bạn cần copy toàn bộ logic từ version 39)
 
-            const input = document.getElementById("fileInput");
-if (!input || !input.files.length) {
-  alert("Chưa chọn file");
-  return;
-}
+           
   //*****JSX*****    
         return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
@@ -1269,6 +1270,7 @@ if (!input || !input.files.length) {
     </script>
 </body>
 </html>
+
 
 
 
