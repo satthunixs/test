@@ -513,7 +513,11 @@ async function uploadFileToDrive() {
             // Copy phần còn lại của code từ artifact device-manager-app...
             // (Do giới hạn độ dài, bạn cần copy toàn bộ logic từ version 39)
 
-            
+            const input = document.getElementById("fileInput");
+if (!input || !input.files.length) {
+  alert("Chưa chọn file");
+  return;
+}
   //*****JSX*****    
         return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
@@ -522,7 +526,7 @@ async function uploadFileToDrive() {
           <h1 className="text-3xl font-bold text-gray-800 mb-2">Quản Lý Thiết Bị Máy Móc</h1>
           <p className="text-gray-600">Theo dõi và quản lý thiết bị theo phòng ban</p>
         </div>
-
+<input type="file" id="fileInput" />
         <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
           <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
             <div className="relative flex-1 w-full">
@@ -1265,6 +1269,7 @@ async function uploadFileToDrive() {
     </script>
 </body>
 </html>
+
 
 
 
