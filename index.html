@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script src="https://accounts.google.com/gsi/client"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Hệ thống quản lý thiết bị máy móc theo phòng ban - Miễn phí, mã nguồn mở">
@@ -384,6 +386,90 @@
                 }
             };
 
+            
+
+            //****Upoad Function ****
+            const CLIENT_ID = 'YOUR_CLIENT_ID_HERE.apps.googleusercontent.com';
+const API_KEY = 'YOUR_API_KEY_HERE';
+const DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest';
+const SCOPES = 'https://www.googleapis.com/auth/drive.file';
+
+let tokenClient;
+let gapiInited = false;
+let gisInited = false;
+
+// Khởi tạo Google API
+function gapiLoaded() {
+  gapi.load('client', initializeGapiClient);
+}
+
+async function initializeGapiClient() {
+  await gapi.client.init({
+    apiKey: API_KEY,
+    discoveryDocs: [DISCOVERY_DOC],
+  });
+  gapiInited = true;
+}
+
+function gisLoaded() {
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: CLIENT_ID,
+    scope: SCOPES,
+    callback: '', 
+  });
+  gisInited = true;
+}
+
+// Upload lên Drive
+async function uploadToDrive() {
+  if (!gapiInited || !gisInited) {
+    alert('Đang khởi tạo Google Drive...');
+    return;
+  }
+
+  tokenClient.callback = async (resp) => {
+    if (resp.error !== undefined) {
+      throw (resp);
+    }
+
+    const data = {
+      devices: devices,
+      departments: departments,
+      deviceTypes: deviceTypes,
+      exportDate: new Date().toISOString()
+    };
+
+    const fileContent = JSON.stringify(data, null, 2);
+    const file = new Blob([fileContent], {type: 'application/json'});
+    const metadata = {
+      name: `backup_${new Date().toISOString().split('T')[0]}.json`,
+      mimeType: 'application/json',
+    };
+
+    const form = new FormData();
+    form.append('metadata', new Blob([JSON.stringify(metadata)], {type: 'application/json'}));
+    form.append('file', file);
+
+    const response = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+      method: 'POST',
+      headers: new Headers({'Authorization': 'Bearer ' + gapi.client.getToken().access_token}),
+      body: form,
+    });
+
+    const result = await response.json();
+    alert('✅ Đã lưu lên Google Drive thành công!');
+  };
+
+  if (gapi.client.getToken() === null) {
+    tokenClient.requestAccessToken({prompt: 'consent'});
+  } else {
+    tokenClient.requestAccessToken({prompt: ''});
+  }
+}
+            //****End Upload Function****
+
+
+            
             // ==================== UTILITY FUNCTIONS ====================
             const toggleDepartment = (deptId) => {
                 setExpandedDepts(prev => ({
@@ -466,6 +552,13 @@
                 <Download className="w-5 h-5" />
                 Xuất Excel
               </button>
+             <button
+                onClick={uploadToDrive}
+                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+              >
+                <Cloud className="w-5 h-5" />
+                  Lưu lên Drive
+             </button>
               <button
                 onClick={() => setShowHandoverList(!showHandoverList)}
                 className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
@@ -1180,6 +1273,7 @@
     </script>
 </body>
 </html>
+
 
 
 
