@@ -56,7 +56,18 @@
                 'Máy bàn', 'Laptop', 'Máy in', 'Máy scan', 'Máy chiếu',
                 'Màn hình', 'Bộ định tuyến', 'Switch', 'Điện thoại'
             ]);
-           const [expandedDepts, setExpandedDepts] = useState({});
+          const [deviceTypes, setDeviceTypes] = useState([
+    'Máy bàn',
+    'Laptop',
+    'Máy in',
+    'Máy scan',
+    'Máy chiếu',
+    'Màn hình',
+    'Bộ định tuyến',
+    'Switch',
+    'Điện thoại'
+  ]);
+  const [expandedDepts, setExpandedDepts] = useState({});
   const [searchTerm, setSearchTerm] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [showDeptForm, setShowDeptForm] = useState(false);
@@ -334,7 +345,6 @@
       default: return status;
     }
   };
- 
             // Copy phần còn lại của code từ artifact device-manager-app...
             // (Do giới hạn độ dài, bạn cần copy toàn bộ logic từ version 39)
 
@@ -1074,7 +1084,8 @@
         )}
       </div>
     </div>
-  );//End JSX   
+  );
+}//End JSX   
         }
 
         // Render app
@@ -1082,5 +1093,6 @@
     </script>
 </body>
 </html>
+
 
 
