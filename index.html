@@ -90,6 +90,7 @@ export default function DeviceManager() {
   const [newTypeName, setNewTypeName] = useState('');
   const [selectedDevice, setSelectedDevice] = useState(null);
   const [showHandoverList, setShowHandoverList] = useState(false);
+  const [showQuickDeptForm, setShowQuickDeptForm] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     type: '',
@@ -197,8 +198,58 @@ export default function DeviceManager() {
       color: colors[departments.length % colors.length]
     };
     setDepartments([...departments, newDept]);
+    setFormData({...formData, departmentId: newDept.id});
     setNewDeptName('');
     setShowDeptForm(false);
+    setShowQuickDeptForm(false);
+  };
+
+  const exportToExcel = () => {
+    if (devices.length === 0) {
+      alert('Chưa có dữ liệu để xuất');
+      return;
+    }
+
+    // Tạo header
+    let csvContent = '\uFEFF'; // UTF-8 BOM for Excel
+    csvContent += 'Tên thiết bị,Loại,Phòng ban,Vị trí,Trạng thái,Ngày mua,CPU,RAM,Ổ cứng,Màn hình,Ghi chú,Có biên bản\n';
+
+    // Thêm dữ liệu
+    devices.forEach(device => {
+      const dept = getDepartmentName(device.departmentId);
+      const status = getStatusText(device.status);
+      const ram = device.ramType && device.ramCapacity ? `${device.ramType} ${device.ramCapacity}` : '';
+      const storage = device.storageType && device.storageCapacity ? `${device.storageType} ${device.storageCapacity}` : '';
+      const hasHandover = device.handoverDocument ? 'Có' : 'Không';
+      
+      const row = [
+        device.name,
+        device.type,
+        dept,
+        device.location || '',
+        status,
+        device.purchaseDate || '',
+        device.cpu || '',
+        ram,
+        storage,
+        device.monitor || '',
+        device.notes ? device.notes.replace(/\n/g, ' ') : '',
+        hasHandover
+      ].map(field => `"${field}"`).join(',');
+      
+      csvContent += row + '\n';
+    });
+
+    // Tạo file và download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `danh-sach-thiet-bi-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const handleAddDeviceType = () => {
@@ -329,6 +380,14 @@ export default function DeviceManager() {
               />
             </div>
             <div className="flex gap-2">
+              <button
+                onClick={exportToExcel}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+                title="Xuất Excel"
+              >
+                <Download className="w-5 h-5" />
+                Xuất Excel
+              </button>
               <button
                 onClick={() => setShowHandoverList(!showHandoverList)}
                 className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
