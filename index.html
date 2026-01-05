@@ -3,30 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Hệ thống quản lý thiết bị máy móc theo phòng ban - Miễn phí, mã nguồn mở">
-    <meta name="keywords" content="quản lý thiết bị, quản lý máy móc, phòng ban, IT">
-    <meta name="author" content="Your Name">
     <title>Quản Lý Thiết Bị Máy Móc</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💻</text></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-        }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
     </style>
 </head>
 <body>
     <div id="root"></div>
     
-    <!-- React & ReactDOM -->
-    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
     
     <script type="text/babel">
         const { useState, useEffect } = React;
         
-        // Icon Components - Lucide React equivalent
+        // Icon Components
         const Plus = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>;
         const Edit2 = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}><path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" /></svg>;
         const Trash2 = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}><path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" /></svg>;
@@ -42,7 +35,6 @@
         const Download = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>;
         const X = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>;
 
-        // Main App Component - Copy từ artifact device-manager-app
         function DeviceManager() {
             const [devices, setDevices] = useState([]);
             const [departments, setDepartments] = useState([
@@ -56,1035 +48,701 @@
                 'Máy bàn', 'Laptop', 'Máy in', 'Máy scan', 'Máy chiếu',
                 'Màn hình', 'Bộ định tuyến', 'Switch', 'Điện thoại'
             ]);
-            
-           const [expandedDepts, setExpandedDepts] = useState({});
-  const [searchTerm, setSearchTerm] = useState('');
-  const [showForm, setShowForm] = useState(false);
-  const [showDeptForm, setShowDeptForm] = useState(false);
-  const [showTypeForm, setShowTypeForm] = useState(false);
-  const [editingId, setEditingId] = useState(null);
-  const [newDeptName, setNewDeptName] = useState('');
-  const [newTypeName, setNewTypeName] = useState('');
-  const [selectedDevice, setSelectedDevice] = useState(null);
-  const [showHandoverList, setShowHandoverList] = useState(false);
-  const [showQuickDeptForm, setShowQuickDeptForm] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    type: '',
-    departmentId: '',
-    location: '',
-    status: 'active',
-    purchaseDate: '',
-    notes: '',
-    cpu: '',
-    ramType: '',
-    ramCapacity: '',
-    storageType: '',
-    storageCapacity: '',
-    monitor: '',
-    handoverDocument: null,
-    handoverDocumentName: ''
-  });
+            const [expandedDepts, setExpandedDepts] = useState({});
+            const [searchTerm, setSearchTerm] = useState('');
+            const [showForm, setShowForm] = useState(false);
+            const [showDeptForm, setShowDeptForm] = useState(false);
+            const [showTypeForm, setShowTypeForm] = useState(false);
+            const [showHandoverList, setShowHandoverList] = useState(false);
+            const [editingId, setEditingId] = useState(null);
+            const [newDeptName, setNewDeptName] = useState('');
+            const [newTypeName, setNewTypeName] = useState('');
+            const [selectedDevice, setSelectedDevice] = useState(null);
+            const [formData, setFormData] = useState({
+                name: '', type: '', departmentId: '', location: '', status: 'active',
+                purchaseDate: '', notes: '', cpu: '', ramType: '', ramCapacity: '',
+                storageType: '', storageCapacity: '', monitor: '',
+                handoverDocument: null, handoverDocumentName: ''
+            });
 
-  useEffect(() => {
-    const savedDevices = localStorage.getItem('devices');
-    const savedDepts = localStorage.getItem('departments');
-    const savedTypes = localStorage.getItem('deviceTypes');
-    if (savedDevices) setDevices(JSON.parse(savedDevices));
-    if (savedDepts) setDepartments(JSON.parse(savedDepts));
-    if (savedTypes) setDeviceTypes(JSON.parse(savedTypes));
-  }, []);
+            useEffect(() => {
+                const savedDevices = localStorage.getItem('devices');
+                const savedDepts = localStorage.getItem('departments');
+                const savedTypes = localStorage.getItem('deviceTypes');
+                if (savedDevices) setDevices(JSON.parse(savedDevices));
+                if (savedDepts) setDepartments(JSON.parse(savedDepts));
+                if (savedTypes) setDeviceTypes(JSON.parse(savedTypes));
+            }, []);
 
-  useEffect(() => {
-    localStorage.setItem('devices', JSON.stringify(devices));
-  }, [devices]);
+            useEffect(() => {
+                localStorage.setItem('devices', JSON.stringify(devices));
+            }, [devices]);
 
-  useEffect(() => {
-    localStorage.setItem('departments', JSON.stringify(departments));
-  }, [departments]);
+            useEffect(() => {
+                localStorage.setItem('departments', JSON.stringify(departments));
+            }, [departments]);
 
-  useEffect(() => {
-    localStorage.setItem('deviceTypes', JSON.stringify(deviceTypes));
-  }, [deviceTypes]);
+            useEffect(() => {
+                localStorage.setItem('deviceTypes', JSON.stringify(deviceTypes));
+            }, [deviceTypes]);
 
-  const handleSubmit = () => {
-    if (!formData.name || !formData.type || !formData.departmentId) {
-      alert('Vui lòng điền đầy đủ thông tin bắt buộc');
-      return;
-    }
-    if (editingId) {
-      setDevices(devices.map(d => d.id === editingId ? { ...formData, id: editingId } : d));
-      setEditingId(null);
-    } else {
-      setDevices([...devices, { ...formData, id: Date.now() }]);
-    }
-    resetForm();
-  };
+            const handleSubmit = () => {
+                if (!formData.name || !formData.type || !formData.departmentId) {
+                    alert('Vui lòng điền đầy đủ thông tin bắt buộc');
+                    return;
+                }
+                if (editingId) {
+                    setDevices(devices.map(d => d.id === editingId ? { ...formData, id: editingId } : d));
+                    setEditingId(null);
+                } else {
+                    setDevices([...devices, { ...formData, id: Date.now() }]);
+                }
+                resetForm();
+            };
 
-  const resetForm = () => {
-    setFormData({
-      name: '',
-      type: '',
-      departmentId: '',
-      location: '',
-      status: 'active',
-      purchaseDate: '',
-      notes: '',
-      cpu: '',
-      ramType: '',
-      ramCapacity: '',
-      storageType: '',
-      storageCapacity: '',
-      monitor: '',
-      handoverDocument: null,
-      handoverDocumentName: ''
-    });
-    setShowForm(false);
-  };
+            const resetForm = () => {
+                setFormData({
+                    name: '', type: '', departmentId: '', location: '', status: 'active',
+                    purchaseDate: '', notes: '', cpu: '', ramType: '', ramCapacity: '',
+                    storageType: '', storageCapacity: '', monitor: '',
+                    handoverDocument: null, handoverDocumentName: ''
+                });
+                setShowForm(false);
+            };
 
-  const handleEdit = (device) => {
-    setFormData(device);
-    setEditingId(device.id);
-    setShowForm(true);
-    setShowHandoverList(false);
-  };
+            const handleEdit = (device) => {
+                setFormData(device);
+                setEditingId(device.id);
+                setShowForm(true);
+                setShowHandoverList(false);
+            };
 
-  const handleDelete = (id) => {
-    if (confirm('Bạn có chắc muốn xóa thiết bị này?')) {
-      setDevices(devices.filter(d => d.id !== id));
-    }
-  };
+            const handleDelete = (id) => {
+                if (confirm('Bạn có chắc muốn xóa thiết bị này?')) {
+                    setDevices(devices.filter(d => d.id !== id));
+                }
+            };
 
-  const handleAddDepartment = () => {
-    if (!newDeptName.trim()) {
-      alert('Vui lòng nhập tên phòng ban');
-      return;
-    }
-    const colors = [
-      'bg-blue-100 text-blue-800',
-      'bg-green-100 text-green-800',
-      'bg-purple-100 text-purple-800',
-      'bg-yellow-100 text-yellow-800',
-      'bg-red-100 text-red-800',
-      'bg-pink-100 text-pink-800',
-      'bg-indigo-100 text-indigo-800'
-    ];
-    const newDept = {
-      id: Date.now(),
-      name: newDeptName,
-      color: colors[departments.length % colors.length]
-    };
-    setDepartments([...departments, newDept]);
-    setFormData({...formData, departmentId: newDept.id});
-    setNewDeptName('');
-    setShowDeptForm(false);
-    setShowQuickDeptForm(false);
-  };
+            const handleAddDepartment = () => {
+                if (!newDeptName.trim()) {
+                    alert('Vui lòng nhập tên phòng ban');
+                    return;
+                }
+                const colors = [
+                    'bg-blue-100 text-blue-800', 'bg-green-100 text-green-800',
+                    'bg-purple-100 text-purple-800', 'bg-yellow-100 text-yellow-800',
+                    'bg-red-100 text-red-800', 'bg-pink-100 text-pink-800'
+                ];
+                setDepartments([...departments, {
+                    id: Date.now(),
+                    name: newDeptName,
+                    color: colors[departments.length % colors.length]
+                }]);
+                setNewDeptName('');
+                setShowDeptForm(false);
+            };
 
-  const exportToExcel = () => {
-    if (devices.length === 0) {
-      alert('Chưa có dữ liệu để xuất');
-      return;
-    }
+            const handleAddDeviceType = () => {
+                if (!newTypeName.trim()) {
+                    alert('Vui lòng nhập loại thiết bị');
+                    return;
+                }
+                if (deviceTypes.includes(newTypeName)) {
+                    alert('Loại thiết bị này đã tồn tại');
+                    return;
+                }
+                setDeviceTypes([...deviceTypes, newTypeName]);
+                setFormData({...formData, type: newTypeName});
+                setNewTypeName('');
+                setShowTypeForm(false);
+            };
 
-    // Tạo header
-    let csvContent = '\uFEFF'; // UTF-8 BOM for Excel
-    csvContent += 'Tên thiết bị,Loại,Phòng ban,Vị trí,Trạng thái,Ngày mua,CPU,RAM,Ổ cứng,Màn hình,Ghi chú,Có biên bản\n';
+            const handleFileUpload = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+                    if (!validTypes.includes(file.type)) {
+                        alert('Chỉ chấp nhận file PDF hoặc ảnh (JPG, PNG)');
+                        return;
+                    }
+                    if (file.size > 10 * 1024 * 1024) {
+                        alert('File không được vượt quá 10MB');
+                        return;
+                    }
+                    
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        setFormData({
+                            ...formData,
+                            handoverDocument: event.target.result,
+                            handoverDocumentName: file.name
+                        });
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
 
-    // Thêm dữ liệu
-    devices.forEach(device => {
-      const dept = getDepartmentName(device.departmentId);
-      const status = getStatusText(device.status);
-      const ram = device.ramType && device.ramCapacity ? `${device.ramType} ${device.ramCapacity}` : '';
-      const storage = device.storageType && device.storageCapacity ? `${device.storageType} ${device.storageCapacity}` : '';
-      const hasHandover = device.handoverDocument ? 'Có' : 'Không';
-      
-      const row = [
-        device.name,
-        device.type,
-        dept,
-        device.location || '',
-        status,
-        device.purchaseDate || '',
-        device.cpu || '',
-        ram,
-        storage,
-        device.monitor || '',
-        device.notes ? device.notes.replace(/\n/g, ' ') : '',
-        hasHandover
-      ].map(field => `"${field}"`).join(',');
-      
-      csvContent += row + '\n';
-    });
+            const handleRemoveFile = () => {
+                setFormData({
+                    ...formData,
+                    handoverDocument: null,
+                    handoverDocumentName: ''
+                });
+            };
 
-    // Tạo file và download
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', `danh-sach-thiet-bi-${new Date().toISOString().split('T')[0]}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
+            const handleDownloadDocument = (device) => {
+                if (!device.handoverDocument) return;
+                const link = document.createElement('a');
+                link.href = device.handoverDocument;
+                link.download = device.handoverDocumentName || 'bien-ban-ban-giao.pdf';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            };
 
-  const handleAddDeviceType = () => {
-    if (!newTypeName.trim()) {
-      alert('Vui lòng nhập loại thiết bị');
-      return;
-    }
-    if (deviceTypes.includes(newTypeName)) {
-      alert('Loại thiết bị này đã tồn tại');
-      return;
-    }
-    setDeviceTypes([...deviceTypes, newTypeName]);
-    setFormData({...formData, type: newTypeName});
-    setNewTypeName('');
-    setShowTypeForm(false);
-  };
+            const toggleDepartment = (deptId) => {
+                setExpandedDepts(prev => ({
+                    ...prev,
+                    [deptId]: !prev[deptId]
+                }));
+            };
 
-  const handleFileUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
-      if (!validTypes.includes(file.type)) {
-        alert('Chỉ chấp nhận file PDF hoặc ảnh (JPG, PNG)');
-        return;
-      }
-      if (file.size > 10 * 1024 * 1024) {
-        alert('File không được vượt quá 10MB');
-        return;
-      }
-      
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setFormData({
-          ...formData,
-          handoverDocument: event.target.result,
-          handoverDocumentName: file.name
-        });
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+            const filteredDevices = devices.filter(d =>
+                d.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                d.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (d.location && d.location.toLowerCase().includes(searchTerm.toLowerCase()))
+            );
 
-  const handleRemoveFile = () => {
-    setFormData({
-      ...formData,
-      handoverDocument: null,
-      handoverDocumentName: ''
-    });
-  };
+            const getDevicesByDepartment = (deptId) => {
+                return filteredDevices.filter(d => d.departmentId === deptId);
+            };
 
-  const handleDownloadDocument = (device) => {
-    if (!device.handoverDocument) return;
-    
-    const link = document.createElement('a');
-    link.href = device.handoverDocument;
-    link.download = device.handoverDocumentName || 'bien-ban-ban-giao.pdf';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
+            const getDevicesWithHandover = () => {
+                return devices.filter(d => d.handoverDocument);
+            };
 
-  const toggleDepartment = (deptId) => {
-    setExpandedDepts(prev => ({
-      ...prev,
-      [deptId]: !prev[deptId]
-    }));
-  };
+            const getHandoversByDepartment = (deptId) => {
+                return devices.filter(d => d.departmentId === deptId && d.handoverDocument);
+            };
 
-  const filteredDevices = devices.filter(d =>
-    d.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    d.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    d.location.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+            const getDepartmentName = (deptId) => {
+                const dept = departments.find(d => d.id === deptId);
+                return dept ? dept.name : 'Không xác định';
+            };
 
-  const getDevicesByDepartment = (deptId) => {
-    return filteredDevices.filter(d => d.departmentId === deptId);
-  };
+            const getStatusIcon = (status) => {
+                switch(status) {
+                    case 'active': return <CheckCircle className="w-5 h-5 text-green-500" />;
+                    case 'maintenance': return <AlertCircle className="w-5 h-5 text-yellow-500" />;
+                    case 'inactive': return <XCircle className="w-5 h-5 text-red-500" />;
+                    default: return null;
+                }
+            };
 
-  const getDevicesWithHandover = () => {
-    return devices.filter(d => d.handoverDocument);
-  };
+            const getStatusText = (status) => {
+                switch(status) {
+                    case 'active': return 'Hoạt động';
+                    case 'maintenance': return 'Bảo trì';
+                    case 'inactive': return 'Ngừng hoạt động';
+                    default: return status;
+                }
+            };
 
-  const getHandoversByDepartment = (deptId) => {
-    return devices.filter(d => d.departmentId === deptId && d.handoverDocument);
-  };
-
-  const getDepartmentName = (deptId) => {
-    const dept = departments.find(d => d.id === deptId);
-    return dept ? dept.name : 'Không xác định';
-  };
-
-  const getStatusIcon = (status) => {
-    switch(status) {
-      case 'active': return <CheckCircle className="w-5 h-5 text-green-500" />;
-      case 'maintenance': return <AlertCircle className="w-5 h-5 text-yellow-500" />;
-      case 'inactive': return <XCircle className="w-5 h-5 text-red-500" />;
-      default: return null;
-    }
-  };
-
-  const getStatusText = (status) => {
-    switch(status) {
-      case 'active': return 'Hoạt động';
-      case 'maintenance': return 'Bảo trì';
-      case 'inactive': return 'Ngừng hoạt động';
-      default: return status;
-    }
-  };
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
-      <div className="max-w-7xl mx-auto">
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">Quản Lý Thiết Bị Máy Móc</h1>
-          <p className="text-gray-600">Theo dõi và quản lý thiết bị theo phòng ban</p>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-          <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
-            <div className="relative flex-1 w-full">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="text"
-                placeholder="Tìm kiếm thiết bị..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={exportToExcel}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
-                title="Xuất Excel"
-              >
-                <Download className="w-5 h-5" />
-                Xuất Excel
-              </button>
-              <button
-                onClick={() => setShowHandoverList(!showHandoverList)}
-                className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
-              >
-                <FileText className="w-5 h-5" />
-                Biên bản ({getDevicesWithHandover().length})
-              </button>
-              <button
-                onClick={() => setShowDeptForm(!showDeptForm)}
-                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
-              >
-                <FolderOpen className="w-5 h-5" />
-                Thêm phòng ban
-              </button>
-              <button
-                onClick={() => setShowForm(!showForm)}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
-              >
-                <Plus className="w-5 h-5" />
-                Thêm thiết bị
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {showDeptForm && (
-          <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-            <h2 className="text-xl font-semibold mb-4">Thêm phòng ban mới</h2>
-            <div className="flex gap-3">
-              <input
-                type="text"
-                placeholder="Tên phòng ban..."
-                value={newDeptName}
-                onChange={(e) => setNewDeptName(e.target.value)}
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              />
-              <button
-                onClick={handleAddDepartment}
-                className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition-colors"
-              >
-                Thêm
-              </button>
-              <button
-                onClick={() => setShowDeptForm(false)}
-                className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg transition-colors"
-              >
-                Hủy
-              </button>
-            </div>
-          </div>
-        )}
-
-        {showForm && (
-          <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-            <h2 className="text-xl font-semibold mb-4">
-              {editingId ? 'Chỉnh sửa thiết bị' : 'Thêm thiết bị mới'}
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Tên thiết bị *</label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData({...formData, name: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Loại thiết bị *</label>
-                <div className="flex gap-2">
-                  <select
-                    value={formData.type}
-                    onChange={(e) => setFormData({...formData, type: e.target.value})}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">-- Chọn loại thiết bị --</option>
-                    {deviceTypes.map((type, index) => (
-                      <option key={index} value={type}>{type}</option>
-                    ))}
-                  </select>
-                  <button
-                    onClick={() => setShowTypeForm(!showTypeForm)}
-                    className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg transition-colors"
-                    title="Thêm loại thiết bị mới"
-                  >
-                    <Plus className="w-5 h-5" />
-                  </button>
-                </div>
-                {showTypeForm && (
-                  <div className="flex gap-2 mt-2">
-                    <input
-                      type="text"
-                      placeholder="Nhập loại thiết bị mới..."
-                      value={newTypeName}
-                      onChange={(e) => setNewTypeName(e.target.value)}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
-                    />
-                    <button
-                      onClick={handleAddDeviceType}
-                      className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-lg transition-colors text-sm"
-                    >
-                      Thêm
-                    </button>
-                    <button
-                      onClick={() => setShowTypeForm(false)}
-                      className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-3 py-1 rounded-lg transition-colors text-sm"
-                    >
-                      Hủy
-                    </button>
-                  </div>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Phòng ban *</label>
-                <select
-                  value={formData.departmentId}
-                  onChange={(e) => setFormData({...formData, departmentId: parseInt(e.target.value)})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="">-- Chọn phòng ban --</option>
-                  {departments.map(dept => (
-                    <option key={dept.id} value={dept.id}>{dept.name}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Vị trí</label>
-                <input
-                  type="text"
-                  value={formData.location}
-                  onChange={(e) => setFormData({...formData, location: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Trạng thái</label>
-                <select
-                  value={formData.status}
-                  onChange={(e) => setFormData({...formData, status: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="active">Hoạt động</option>
-                  <option value="maintenance">Bảo trì</option>
-                  <option value="inactive">Ngừng hoạt động</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Ngày mua</label>
-                <input
-                  type="date"
-                  value={formData.purchaseDate}
-                  onChange={(e) => setFormData({...formData, purchaseDate: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Ghi chú</label>
-                <textarea
-                  value={formData.notes}
-                  onChange={(e) => setFormData({...formData, notes: e.target.value})}
-                  rows="3"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-
-              <div className="md:col-span-2 border-t pt-4 mt-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Biên bản bàn giao</label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 hover:border-blue-400 transition-colors">
-                  {!formData.handoverDocument ? (
-                    <label className="flex flex-col items-center cursor-pointer">
-                      <Upload className="w-12 h-12 text-gray-400 mb-2" />
-                      <span className="text-sm text-gray-600 mb-1">Tải lên biên bản bàn giao</span>
-                      <span className="text-xs text-gray-500">PDF, JPG, PNG (Tối đa 10MB)</span>
-                      <input
-                        type="file"
-                        accept=".pdf,.jpg,.jpeg,.png"
-                        onChange={handleFileUpload}
-                        className="hidden"
-                      />
-                    </label>
-                  ) : (
-                    <div className="flex items-center justify-between bg-blue-50 p-3 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        {formData.handoverDocumentName.toLowerCase().endsWith('.pdf') ? (
-                          <FileText className="w-8 h-8 text-red-600" />
-                        ) : (
-                          <div className="w-8 h-8 text-blue-600 flex items-center justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
-                            </svg>
-                          </div>
-                        )}
-                        <div>
-                          <p className="font-medium text-gray-900">{formData.handoverDocumentName}</p>
-                          <p className="text-xs text-gray-500">Đã tải lên</p>
-                        </div>
-                      </div>
-                      <button
-                        onClick={handleRemoveFile}
-                        className="text-red-600 hover:text-red-800 p-1"
-                        title="Xóa file"
-                      >
-                        <X className="w-5 h-5" />
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {(formData.type === 'Máy bàn' || formData.type === 'Laptop') && (
-                <>
-                  <div className="md:col-span-2 border-t pt-4 mt-2">
-                    <h3 className="font-semibold text-gray-700 mb-3">Cấu hình máy tính</h3>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">CPU</label>
-                    <input
-                      type="text"
-                      placeholder="VD: Intel Core i5-12400"
-                      value={formData.cpu}
-                      onChange={(e) => setFormData({...formData, cpu: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Loại RAM</label>
-                    <select
-                      value={formData.ramType}
-                      onChange={(e) => setFormData({...formData, ramType: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option value="">-- Chọn loại RAM --</option>
-                      <option value="DDR3">DDR3</option>
-                      <option value="DDR4">DDR4</option>
-                      <option value="DDR5">DDR5</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Dung lượng RAM</label>
-                    <select
-                      value={formData.ramCapacity}
-                      onChange={(e) => setFormData({...formData, ramCapacity: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option value="">-- Chọn dung lượng --</option>
-                      <option value="4GB">4GB</option>
-                      <option value="8GB">8GB</option>
-                      <option value="16GB">16GB</option>
-                      <option value="32GB">32GB</option>
-                      <option value="64GB">64GB</option>
-                      <option value="128GB">128GB</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Loại ổ cứng</label>
-                    <select
-                      value={formData.storageType}
-                      onChange={(e) => setFormData({...formData, storageType: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option value="">-- Chọn loại ổ cứng --</option>
-                      <option value="HDD">HDD</option>
-                      <option value="SSD SATA">SSD SATA</option>
-                      <option value="SSD NVMe">SSD NVMe</option>
-                      <option value="SSD M.2">SSD M.2</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Dung lượng ổ cứng</label>
-                    <select
-                      value={formData.storageCapacity}
-                      onChange={(e) => setFormData({...formData, storageCapacity: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option value="">-- Chọn dung lượng --</option>
-                      <option value="128GB">128GB</option>
-                      <option value="256GB">256GB</option>
-                      <option value="512GB">512GB</option>
-                      <option value="1TB">1TB</option>
-                      <option value="2TB">2TB</option>
-                      <option value="4TB">4TB</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Màn hình</label>
-                    <input
-                      type="text"
-                      placeholder="VD: 24 inch Full HD"
-                      value={formData.monitor}
-                      onChange={(e) => setFormData({...formData, monitor: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
-                </>
-              )}
-
-              <div className="md:col-span-2 flex gap-3">
-                <button
-                  onClick={handleSubmit}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors"
-                >
-                  {editingId ? 'Cập nhật' : 'Thêm'}
-                </button>
-                <button
-                  onClick={resetForm}
-                  className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg transition-colors"
-                >
-                  Hủy
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {showHandoverList ? (
-          <div className="space-y-4">
-            <div className="bg-white rounded-lg shadow-lg p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold text-gray-800">Danh Sách Biên Bản Bàn Giao</h2>
-                <button
-                  onClick={() => setShowHandoverList(false)}
-                  className="text-gray-600 hover:text-gray-800"
-                >
-                  <X className="w-6 h-6" />
-                </button>
-              </div>
-              <p className="text-gray-600 mb-4">Tổng số biên bản: <span className="font-semibold text-purple-600">{getDevicesWithHandover().length}</span></p>
-            </div>
-
-            {departments.map(dept => {
-              const handoverDevices = getHandoversByDepartment(dept.id);
-              
-              if (handoverDevices.length === 0) return null;
-              
-              return (
-                <div key={dept.id} className="bg-white rounded-lg shadow-lg overflow-hidden">
-                  <div className="bg-gradient-to-r from-purple-50 to-indigo-50 p-4 border-b-2 border-purple-200">
-                    <div className="flex items-center gap-3">
-                      <FolderOpen className="w-6 h-6 text-purple-600" />
-                      <span className="font-semibold text-lg">{dept.name}</span>
-                      <span className="px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
-                        {handoverDevices.length} biên bản
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="p-4 space-y-3">
-                    {handoverDevices.map((device) => (
-                      <div key={device.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-2">
-                              <h3 className="font-semibold text-gray-900 text-lg">{device.name}</h3>
-                              <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">{device.type}</span>
-                              <div className="flex items-center gap-1">
-                                {getStatusIcon(device.status)}
-                                <span className="text-sm text-gray-600">{getStatusText(device.status)}</span>
-                              </div>
-                            </div>
-                            
-                            <div className="grid grid-cols-2 gap-3 mb-3 text-sm">
-                              <div>
-                                <span className="text-gray-500">Vị trí:</span>
-                                <span className="ml-2 text-gray-900">{device.location || 'N/A'}</span>
-                              </div>
-                              <div>
-                                <span className="text-gray-500">Ngày mua:</span>
-                                <span className="ml-2 text-gray-900">{device.purchaseDate || 'N/A'}</span>
-                              </div>
-                            </div>
-
-                            <div className="flex items-center gap-3 bg-gradient-to-r from-green-50 to-emerald-50 p-3 rounded-lg border border-green-200">
-                              {device.handoverDocumentName.toLowerCase().endsWith('.pdf') ? (
-                                <FileText className="w-8 h-8 text-red-600 flex-shrink-0" />
-                              ) : (
-                                <div className="w-8 h-8 text-blue-600 flex-shrink-0 flex items-center justify-center">
-                                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
-                                  </svg>
-                                </div>
-                              )}
-                              <div className="flex-1">
-                                <p className="font-medium text-gray-900">{device.handoverDocumentName}</p>
-                                <p className="text-xs text-gray-600 mt-1">
-                                  {device.handoverDocumentName.toLowerCase().endsWith('.pdf') 
-                                    ? 'Biên bản bàn giao (PDF)' 
-                                    : 'Biên bản bàn giao (Hình ảnh)'}
-                                </p>
-                              </div>
-                              <div className="flex gap-2">
-                                <button
-                                  onClick={() => setSelectedDevice(device)}
-                                  className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm transition-colors"
-                                >
-                                  Xem
-                                </button>
-                                <button
-                                  onClick={() => handleDownloadDocument(device)}
-                                  className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg flex items-center gap-2 transition-colors"
-                                >
-                                  <Download className="w-4 h-4" />
-                                  Tải về
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
-
-            {getDevicesWithHandover().length === 0 && (
-              <div className="bg-white rounded-lg shadow-lg p-12 text-center">
-                <FileText className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600 text-lg">Chưa có biên bản bàn giao nào</p>
-                <p className="text-gray-500 text-sm mt-2">Thêm biên bản khi tạo hoặc chỉnh sửa thiết bị</p>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {departments.map(dept => {
-              const deptDevices = getDevicesByDepartment(dept.id);
-              const isExpanded = expandedDepts[dept.id];
-              
-              return (
-                <div key={dept.id} className="bg-white rounded-lg shadow-lg overflow-hidden">
-                  <div
-                    onClick={() => toggleDepartment(dept.id)}
-                    className="cursor-pointer bg-gradient-to-r from-gray-50 to-gray-100 p-4 flex items-center justify-between hover:bg-gray-200 transition-colors"
-                  >
-                    <div className="flex items-center gap-3">
-                      {isExpanded ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
-                      <FolderOpen className="w-6 h-6 text-gray-600" />
-                      <span className="font-semibold text-lg">{dept.name}</span>
-                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${dept.color}`}>
-                        {deptDevices.length} thiết bị
-                      </span>
-                    </div>
-                  </div>
-
-                  {isExpanded && (
-                    <div className="overflow-x-auto">
-                      <table className="w-full">
-                        <thead className="bg-gray-50">
-                          <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tên thiết bị</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Loại</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cấu hình</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Vị trí</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Trạng thái</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Thao tác</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-200">
-                          {deptDevices.length === 0 ? (
-                            <tr>
-                              <td colSpan="6" className="px-6 py-8 text-center text-gray-500">
-                                Phòng ban này chưa có thiết bị nào
-                              </td>
-                            </tr>
-                          ) : (
-                            deptDevices.map((device) => (
-                              <tr key={device.id} className="hover:bg-gray-50">
-                                <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">{device.name}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-gray-600">{device.type}</td>
-                                <td className="px-6 py-4">
-                                  {device.cpu || device.ramType || device.storageType ? (
-                                    <div className="text-sm">
-                                      {device.cpu && <div className="text-gray-900">{device.cpu}</div>}
-                                      {device.ramType && <div className="text-gray-600">{device.ramType} {device.ramCapacity}</div>}
-                                      {device.storageType && <div className="text-gray-600">{device.storageType} {device.storageCapacity}</div>}
-                                      <button
-                                        onClick={() => setSelectedDevice(device)}
-                                        className="text-blue-600 hover:underline text-xs mt-1"
-                                      >
-                                        Xem chi tiết
-                                      </button>
-                                    </div>
-                                  ) : (
-                                    <span className="text-gray-400 text-sm">Chưa cập nhật</span>
-                                  )}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-gray-600">{device.location || 'N/A'}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                  <div className="flex items-center gap-2">
-                                    {getStatusIcon(device.status)}
-                                    <span className="text-sm">{getStatusText(device.status)}</span>
-                                  </div>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                  <div className="flex gap-2">
-                                    {device.handoverDocument && (
-                                      <button
-                                        onClick={() => handleDownloadDocument(device)}
-                                        className="text-green-600 hover:text-green-800 p-1"
-                                        title="Tải biên bản"
-                                      >
-                                        <Download className="w-5 h-5" />
-                                      </button>
-                                    )}
-                                    <button
-                                      onClick={() => handleEdit(device)}
-                                      className="text-blue-600 hover:text-blue-800 p-1"
-                                      title="Chỉnh sửa"
-                                    >
-                                      <Edit2 className="w-5 h-5" />
-                                    </button>
-                                    <button
-                                      onClick={() => handleDelete(device.id)}
-                                      className="text-red-600 hover:text-red-800 p-1"
-                                      title="Xóa"
-                                    >
-                                      <Trash2 className="w-5 h-5" />
-                                    </button>
-                                  </div>
-                                </td>
-                              </tr>
-                            ))
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        {departments.length === 0 && !showHandoverList && (
-          <div className="bg-white rounded-lg shadow-lg p-8 text-center">
-            <FolderOpen className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600">Chưa có phòng ban nào. Hãy thêm phòng ban đầu tiên!</p>
-          </div>
-        )}
-
-        <div className="bg-white rounded-lg shadow-lg p-4 mt-6">
-          <div className="flex justify-around text-sm text-gray-600">
-            <div>Tổng số phòng ban: <span className="font-semibold text-blue-600">{departments.length}</span></div>
-            <div>Tổng số thiết bị: <span className="font-semibold text-green-600">{devices.length}</span></div>
-            <div>Đang hiển thị: <span className="font-semibold text-purple-600">{filteredDevices.length}</span></div>
-          </div>
-        </div>
-
-        {selectedDevice && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" onClick={() => setSelectedDevice(null)}>
-            <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-              <div className="sticky top-0 bg-white border-b p-6 flex justify-between items-start">
-                <h2 className="text-2xl font-bold text-gray-800">{selectedDevice.name}</h2>
-                <button
-                  onClick={() => setSelectedDevice(null)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <XCircle className="w-6 h-6" />
-                </button>
-              </div>
-
-              <div className="p-6 space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <span className="text-sm font-medium text-gray-500">Loại thiết bị:</span>
-                    <p className="text-gray-900 mt-1">{selectedDevice.type}</p>
-                  </div>
-                  <div>
-                    <span className="text-sm font-medium text-gray-500">Phòng ban:</span>
-                    <p className="text-gray-900 mt-1">{getDepartmentName(selectedDevice.departmentId)}</p>
-                  </div>
-                  <div>
-                    <span className="text-sm font-medium text-gray-500">Vị trí:</span>
-                    <p className="text-gray-900 mt-1">{selectedDevice.location || 'N/A'}</p>
-                  </div>
-                  <div>
-                    <span className="text-sm font-medium text-gray-500">Trạng thái:</span>
-                    <div className="flex items-center gap-2 mt-1">
-                      {getStatusIcon(selectedDevice.status)}
-                      <span>{getStatusText(selectedDevice.status)}</span>
-                    </div>
-                  </div>
-                  <div>
-                    <span className="text-sm font-medium text-gray-500">Ngày mua:</span>
-                    <p className="text-gray-900 mt-1">{selectedDevice.purchaseDate || 'N/A'}</p>
-                  </div>
-                </div>
-
-                {(selectedDevice.cpu || selectedDevice.ramType || selectedDevice.storageType || selectedDevice.monitor) && (
-                  <div className="border-t pt-4">
-                    <h3 className="font-semibold text-gray-700 mb-3">Cấu hình máy tính</h3>
-                    <div className="grid grid-cols-2 gap-4">
-                      {selectedDevice.cpu && (
-                        <div>
-                          <span className="text-sm font-medium text-gray-500">CPU:</span>
-                          <p className="text-gray-900 mt-1">{selectedDevice.cpu}</p>
-                        </div>
-                      )}
-                      {(selectedDevice.ramType || selectedDevice.ramCapacity) && (
-                        <div>
-                          <span className="text-sm font-medium text-gray-500">RAM:</span>
-                          <p className="text-gray-900 mt-1">
-                            {selectedDevice.ramType && selectedDevice.ramCapacity 
-                              ? `${selectedDevice.ramType} ${selectedDevice.ramCapacity}`
-                              : selectedDevice.ramType || selectedDevice.ramCapacity || 'Chưa cập nhật'}
-                          </p>
-                        </div>
-                      )}
-                      {(selectedDevice.storageType || selectedDevice.storageCapacity) && (
-                        <div>
-                          <span className="text-sm font-medium text-gray-500">Ổ cứng:</span>
-                          <p className="text-gray-900 mt-1">
-                            {selectedDevice.storageType && selectedDevice.storageCapacity
-                              ? `${selectedDevice.storageType} ${selectedDevice.storageCapacity}`
-                              : selectedDevice.storageType || selectedDevice.storageCapacity || 'Chưa cập nhật'}
-                          </p>
-                        </div>
-                      )}
-                      {selectedDevice.monitor && (
-                        <div>
-                          <span className="text-sm font-medium text-gray-500">Màn hình:</span>
-                          <p className="text-gray-900 mt-1">{selectedDevice.monitor}</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {selectedDevice.notes && (
-                  <div className="border-t pt-4">
-                    <span className="text-sm font-medium text-gray-500">Ghi chú:</span>
-                    <p className="text-gray-900 mt-1 whitespace-pre-wrap">{selectedDevice.notes}</p>
-                  </div>
-                )}
-
-                {selectedDevice.handoverDocument && (
-                  <div className="border-t pt-4">
-                    <span className="text-sm font-medium text-gray-500 block mb-3">Biên bản bàn giao:</span>
-                    <div className="flex items-center gap-3 bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-200 mb-3">
-                      {selectedDevice.handoverDocumentName.toLowerCase().endsWith('.pdf') ? (
-                        <FileText className="w-10 h-10 text-red-600 flex-shrink-0" />
-                      ) : (
-                        <div className="w-10 h-10 text-blue-600 flex-shrink-0 flex items-center justify-center">
-                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-10 h-10">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
-                          </svg>
-                        </div>
-                      )}
-                      <div className="flex-1">
-                        <p className="font-semibold text-gray-900">{selectedDevice.handoverDocumentName}</p>
-                        <p className="text-xs text-gray-600 mt-1">
-                          {selectedDevice.handoverDocumentName.toLowerCase().endsWith('.pdf') 
-                            ? 'File PDF - Click tải về để xem' 
-                            : 'Hình ảnh - Xem bên dưới'}
-                        </p>
-                      </div>
-                      <button
-                        onClick={() => handleDownloadDocument(selectedDevice)}
-                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors flex-shrink-0"
-                      >
-                        <Download className="w-4 h-4" />
-                        Tải về
-                      </button>
-                    </div>
-                    {!selectedDevice.handoverDocumentName.toLowerCase().endsWith('.pdf') && (
-                      <div className="bg-gray-50 p-4 rounded-lg">
-                        <img 
-                          src={selectedDevice.handoverDocument} 
-                          alt="Biên bản bàn giao" 
-                          className="max-w-full h-auto rounded-lg border-2 border-gray-300 shadow-md"
-                        />
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                <div className="border-t pt-4 flex gap-3 sticky bottom-0 bg-white pb-2">
-                  <button
-                    onClick={() => {
-                      handleEdit(selectedDevice);
-                      setSelectedDevice(null);
-                    }}
-                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg transition-colors font-medium"
-                  >
-                    Chỉnh sửa
-                  </button>
-                  <button
-                    onClick={() => setSelectedDevice(null)}
-                    className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-3 rounded-lg transition-colors font-medium"
-                  >
-                    Đóng
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-} // Copy phần còn lại của code từ artifact device-manager-app...
-            // (Do giới hạn độ dài, bạn cần copy toàn bộ logic từ version 39)
-            
             return (
                 <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
                     <div className="max-w-7xl mx-auto">
-                        {/* Copy toàn bộ JSX từ version 39 */}
+                        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+                            <h1 className="text-3xl font-bold text-gray-800 mb-2">Quản Lý Thiết Bị Máy Móc</h1>
+                            <p className="text-gray-600">Theo dõi và quản lý thiết bị theo phòng ban</p>
+                        </div>
+
+                        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+                            <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
+                                <div className="relative flex-1 w-full">
+                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                                    <input
+                                        type="text"
+                                        placeholder="Tìm kiếm thiết bị..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    />
+                                </div>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => setShowHandoverList(!showHandoverList)}
+                                        className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+                                    >
+                                        <FileText className="w-5 h-5" />
+                                        Biên bản ({getDevicesWithHandover().length})
+                                    </button>
+                                    <button
+                                        onClick={() => setShowDeptForm(!showDeptForm)}
+                                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+                                    >
+                                        <FolderOpen className="w-5 h-5" />
+                                        Thêm phòng ban
+                                    </button>
+                                    <button
+                                        onClick={() => setShowForm(!showForm)}
+                                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+                                    >
+                                        <Plus className="w-5 h-5" />
+                                        Thêm thiết bị
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {showDeptForm && (
+                            <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+                                <h2 className="text-xl font-semibold mb-4">Thêm phòng ban mới</h2>
+                                <div className="flex gap-3">
+                                    <input
+                                        type="text"
+                                        placeholder="Tên phòng ban..."
+                                        value={newDeptName}
+                                        onChange={(e) => setNewDeptName(e.target.value)}
+                                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    />
+                                    <button
+                                        onClick={handleAddDepartment}
+                                        className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition-colors"
+                                    >
+                                        Thêm
+                                    </button>
+                                    <button
+                                        onClick={() => setShowDeptForm(false)}
+                                        className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg transition-colors"
+                                    >
+                                        Hủy
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {showForm && (
+                            <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+                                <h2 className="text-xl font-semibold mb-4">
+                                    {editingId ? 'Chỉnh sửa thiết bị' : 'Thêm thiết bị mới'}
+                                </h2>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Tên thiết bị *</label>
+                                        <input
+                                            type="text"
+                                            value={formData.name}
+                                            onChange={(e) => setFormData({...formData, purchaseDate: e.target.value})}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        />
+                                    </div>
+                                    <div className="md:col-span-2">
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Ghi chú</label>
+                                        <textarea
+                                            value={formData.notes}
+                                            onChange={(e) => setFormData({...formData, notes: e.target.value})}
+                                            rows="3"
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        />
+                                    </div>
+
+                                    <div className="md:col-span-2 border-t pt-4 mt-2">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Biên bản bàn giao</label>
+                                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 hover:border-blue-400 transition-colors">
+                                            {!formData.handoverDocument ? (
+                                                <label className="flex flex-col items-center cursor-pointer">
+                                                    <Upload className="w-12 h-12 text-gray-400 mb-2" />
+                                                    <span className="text-sm text-gray-600 mb-1">Tải lên biên bản bàn giao</span>
+                                                    <span className="text-xs text-gray-500">PDF, JPG, PNG (Tối đa 10MB)</span>
+                                                    <input
+                                                        type="file"
+                                                        accept=".pdf,.jpg,.jpeg,.png"
+                                                        onChange={handleFileUpload}
+                                                        className="hidden"
+                                                    />
+                                                </label>
+                                            ) : (
+                                                <div className="flex items-center justify-between bg-blue-50 p-3 rounded-lg">
+                                                    <div className="flex items-center gap-3">
+                                                        {formData.handoverDocumentName.toLowerCase().endsWith('.pdf') ? (
+                                                            <FileText className="w-8 h-8 text-red-600" />
+                                                        ) : (
+                                                            <div className="w-8 h-8 text-blue-600">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                                                                </svg>
+                                                            </div>
+                                                        )}
+                                                        <div>
+                                                            <p className="font-medium text-gray-900">{formData.handoverDocumentName}</p>
+                                                            <p className="text-xs text-gray-500">Đã tải lên</p>
+                                                        </div>
+                                                    </div>
+                                                    <button
+                                                        onClick={handleRemoveFile}
+                                                        className="text-red-600 hover:text-red-800 p-1"
+                                                        title="Xóa file"
+                                                    >
+                                                        <X className="w-5 h-5" />
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {(formData.type === 'Máy bàn' || formData.type === 'Laptop') && (
+                                        <>
+                                            <div className="md:col-span-2 border-t pt-4 mt-2">
+                                                <h3 className="font-semibold text-gray-700 mb-3">Cấu hình máy tính</h3>
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">CPU</label>
+                                                <input
+                                                    type="text"
+                                                    placeholder="VD: Intel Core i5-12400"
+                                                    value={formData.cpu}
+                                                    onChange={(e) => setFormData({...formData, cpu: e.target.value})}
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">Loại RAM</label>
+                                                <select
+                                                    value={formData.ramType}
+                                                    onChange={(e) => setFormData({...formData, ramType: e.target.value})}
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                                                >
+                                                    <option value="">-- Chọn loại RAM --</option>
+                                                    <option value="DDR3">DDR3</option>
+                                                    <option value="DDR4">DDR4</option>
+                                                    <option value="DDR5">DDR5</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">Dung lượng RAM</label>
+                                                <select
+                                                    value={formData.ramCapacity}
+                                                    onChange={(e) => setFormData({...formData, ramCapacity: e.target.value})}
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                                                >
+                                                    <option value="">-- Chọn dung lượng --</option>
+                                                    <option value="4GB">4GB</option>
+                                                    <option value="8GB">8GB</option>
+                                                    <option value="16GB">16GB</option>
+                                                    <option value="32GB">32GB</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">Loại ổ cứng</label>
+                                                <select
+                                                    value={formData.storageType}
+                                                    onChange={(e) => setFormData({...formData, storageType: e.target.value})}
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                                                >
+                                                    <option value="">-- Chọn loại --</option>
+                                                    <option value="HDD">HDD</option>
+                                                    <option value="SSD SATA">SSD SATA</option>
+                                                    <option value="SSD NVMe">SSD NVMe</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">Dung lượng ổ cứng</label>
+                                                <select
+                                                    value={formData.storageCapacity}
+                                                    onChange={(e) => setFormData({...formData, storageCapacity: e.target.value})}
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                                                >
+                                                    <option value="">-- Chọn dung lượng --</option>
+                                                    <option value="256GB">256GB</option>
+                                                    <option value="512GB">512GB</option>
+                                                    <option value="1TB">1TB</option>
+                                                    <option value="2TB">2TB</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">Màn hình</label>
+                                                <input
+                                                    type="text"
+                                                    placeholder="VD: 24 inch Full HD"
+                                                    value={formData.monitor}
+                                                    onChange={(e) => setFormData({...formData, monitor: e.target.value})}
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                                                />
+                                            </div>
+                                        </>
+                                    )}
+
+                                    <div className="md:col-span-2 flex gap-3">
+                                        <button
+                                            onClick={handleSubmit}
+                                            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg"
+                                        >
+                                            {editingId ? 'Cập nhật' : 'Thêm'}
+                                        </button>
+                                        <button
+                                            onClick={resetForm}
+                                            className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg"
+                                        >
+                                            Hủy
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {showHandoverList ? (
+                            <div className="space-y-4">
+                                <div className="bg-white rounded-lg shadow-lg p-6">
+                                    <div className="flex justify-between items-center mb-4">
+                                        <h2 className="text-2xl font-bold text-gray-800">Danh Sách Biên Bản Bàn Giao</h2>
+                                        <button onClick={() => setShowHandoverList(false)} className="text-gray-600 hover:text-gray-800">
+                                            <X className="w-6 h-6" />
+                                        </button>
+                                    </div>
+                                    <p className="text-gray-600">Tổng số biên bản: <span className="font-semibold text-purple-600">{getDevicesWithHandover().length}</span></p>
+                                </div>
+                                
+                                {departments.map(dept => {
+                                    const handoverDevices = getHandoversByDepartment(dept.id);
+                                    if (handoverDevices.length === 0) return null;
+                                    
+                                    return (
+                                        <div key={dept.id} className="bg-white rounded-lg shadow-lg overflow-hidden">
+                                            <div className="bg-gradient-to-r from-purple-50 to-indigo-50 p-4 border-b-2 border-purple-200">
+                                                <div className="flex items-center gap-3">
+                                                    <FolderOpen className="w-6 h-6 text-purple-600" />
+                                                    <span className="font-semibold text-lg">{dept.name}</span>
+                                                    <span className="px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
+                                                        {handoverDevices.length} biên bản
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div className="p-4 space-y-3">
+                                                {handoverDevices.map(device => (
+                                                    <div key={device.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                                                        <div className="flex items-start justify-between">
+                                                            <div className="flex-1">
+                                                                <h3 className="font-semibold text-gray-900 text-lg mb-2">{device.name}</h3>
+                                                                <div className="grid grid-cols-2 gap-2 text-sm mb-3">
+                                                                    <div><span className="text-gray-500">Loại:</span> <span className="ml-2">{device.type}</span></div>
+                                                                    <div><span className="text-gray-500">Vị trí:</span> <span className="ml-2">{device.location || 'N/A'}</span></div>
+                                                                </div>
+                                                                <div className="flex items-center gap-3 bg-green-50 p-3 rounded-lg border border-green-200">
+                                                                    <FileText className="w-8 h-8 text-red-600" />
+                                                                    <div className="flex-1">
+                                                                        <p className="font-medium">{device.handoverDocumentName}</p>
+                                                                    </div>
+                                                                    <button
+                                                                        onClick={() => handleDownloadDocument(device)}
+                                                                        className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg flex items-center gap-2"
+                                                                    >
+                                                                        <Download className="w-4 h-4" />
+                                                                        Tải về
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        ) : (
+                            <div className="space-y-4">
+                                {departments.map(dept => {
+                                    const deptDevices = getDevicesByDepartment(dept.id);
+                                    const isExpanded = expandedDepts[dept.id];
+                                    
+                                    return (
+                                        <div key={dept.id} className="bg-white rounded-lg shadow-lg overflow-hidden">
+                                            <div
+                                                onClick={() => toggleDepartment(dept.id)}
+                                                className="cursor-pointer bg-gradient-to-r from-gray-50 to-gray-100 p-4 flex items-center justify-between hover:bg-gray-200"
+                                            >
+                                                <div className="flex items-center gap-3">
+                                                    {isExpanded ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
+                                                    <FolderOpen className="w-6 h-6 text-gray-600" />
+                                                    <span className="font-semibold text-lg">{dept.name}</span>
+                                                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${dept.color}`}>
+                                                        {deptDevices.length} thiết bị
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            {isExpanded && (
+                                                <div className="overflow-x-auto">
+                                                    <table className="w-full">
+                                                        <thead className="bg-gray-50">
+                                                            <tr>
+                                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tên</th>
+                                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Loại</th>
+                                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Vị trí</th>
+                                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Trạng thái</th>
+                                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Thao tác</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody className="divide-y divide-gray-200">
+                                                            {deptDevices.length === 0 ? (
+                                                                <tr>
+                                                                    <td colSpan="5" className="px-6 py-8 text-center text-gray-500">
+                                                                        Phòng ban này chưa có thiết bị nào
+                                                                    </td>
+                                                                </tr>
+                                                            ) : (
+                                                                deptDevices.map(device => (
+                                                                    <tr key={device.id} className="hover:bg-gray-50">
+                                                                        <td className="px-6 py-4 whitespace-nowrap font-medium">{device.name}</td>
+                                                                        <td className="px-6 py-4 whitespace-nowrap">{device.type}</td>
+                                                                        <td className="px-6 py-4 whitespace-nowrap">{device.location || 'N/A'}</td>
+                                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                                            <div className="flex items-center gap-2">
+                                                                                {getStatusIcon(device.status)}
+                                                                                <span className="text-sm">{getStatusText(device.status)}</span>
+                                                                            </div>
+                                                                        </td>
+                                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                                            <div className="flex gap-2">
+                                                                                {device.handoverDocument && (
+                                                                                    <button
+                                                                                        onClick={() => handleDownloadDocument(device)}
+                                                                                        className="text-green-600 hover:text-green-800 p-1"
+                                                                                        title="Tải biên bản"
+                                                                                    >
+                                                                                        <Download className="w-5 h-5" />
+                                                                                    </button>
+                                                                                )}
+                                                                                <button
+                                                                                    onClick={() => handleEdit(device)}
+                                                                                    className="text-blue-600 hover:text-blue-800 p-1"
+                                                                                    title="Chỉnh sửa"
+                                                                                >
+                                                                                    <Edit2 className="w-5 h-5" />
+                                                                                </button>
+                                                                                <button
+                                                                                    onClick={() => handleDelete(device.id)}
+                                                                                    className="text-red-600 hover:text-red-800 p-1"
+                                                                                    title="Xóa"
+                                                                                >
+                                                                                    <Trash2 className="w-5 h-5" />
+                                                                                </button>
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                ))
+                                                            )}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
+
+                        <div className="bg-white rounded-lg shadow-lg p-4 mt-6">
+                            <div className="flex justify-around text-sm text-gray-600">
+                                <div>Tổng phòng ban: <span className="font-semibold text-blue-600">{departments.length}</span></div>
+                                <div>Tổng thiết bị: <span className="font-semibold text-green-600">{devices.length}</span></div>
+                                <div>Đang hiển thị: <span className="font-semibold text-purple-600">{filteredDevices.length}</span></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             );
         }
 
-        // Render app
         ReactDOM.render(<DeviceManager />, document.getElementById('root'));
     </script>
 </body>
-</html>
+</html>={(e) => setFormData({...formData, name: e.target.value})}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Loại thiết bị *</label>
+                                        <div className="flex gap-2">
+                                            <select
+                                                value={formData.type}
+                                                onChange={(e) => setFormData({...formData, type: e.target.value})}
+                                                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            >
+                                                <option value="">-- Chọn loại thiết bị --</option>
+                                                {deviceTypes.map((type, index) => (
+                                                    <option key={index} value={type}>{type}</option>
+                                                ))}
+                                            </select>
+                                            <button
+                                                onClick={() => setShowTypeForm(!showTypeForm)}
+                                                className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg transition-colors"
+                                                title="Thêm loại thiết bị mới"
+                                            >
+                                                <Plus className="w-5 h-5" />
+                                            </button>
+                                        </div>
+                                        {showTypeForm && (
+                                            <div className="flex gap-2 mt-2">
+                                                <input
+                                                    type="text"
+                                                    placeholder="Nhập loại thiết bị mới..."
+                                                    value={newTypeName}
+                                                    onChange={(e) => setNewTypeName(e.target.value)}
+                                                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+                                                />
+                                                <button
+                                                    onClick={handleAddDeviceType}
+                                                    className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-lg transition-colors text-sm"
+                                                >
+                                                    Thêm
+                                                </button>
+                                                <button
+                                                    onClick={() => setShowTypeForm(false)}
+                                                    className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-3 py-1 rounded-lg transition-colors text-sm"
+                                                >
+                                                    Hủy
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Phòng ban *</label>
+                                        <select
+                                            value={formData.departmentId}
+                                            onChange={(e) => setFormData({...formData, departmentId: parseInt(e.target.value)})}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        >
+                                            <option value="">-- Chọn phòng ban --</option>
+                                            {departments.map(dept => (
+                                                <option key={dept.id} value={dept.id}>{dept.name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Vị trí</label>
+                                        <input
+                                            type="text"
+                                            value={formData.location}
+                                            onChange={(e) => setFormData({...formData, location: e.target.value})}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Trạng thái</label>
+                                        <select
+                                            value={formData.status}
+                                            onChange={(e) => setFormData({...formData, status: e.target.value})}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        >
+                                            <option value="active">Hoạt động</option>
+                                            <option value="maintenance">Bảo trì</option>
+                                            <option value="inactive">Ngừng hoạt động</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Ngày mua</label>
+                                        <input
+                                            type="date"
+                                            value={formData.purchaseDate}
+                                            onChange
