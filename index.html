@@ -37,22 +37,18 @@ class WebAppDB {
   }
 
   async addDevice(device) {
-    const res = await fetch(WEB_APP_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        ...device,
-        _action: 'create',
-      }),
-    });
+  const res = await fetch(WEB_APP_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ...device, _action: 'create' }),
+  });
 
-    const data = await res.json();
-    if (!data.success) {
-      throw new Error('Create failed');
-    }
+  const result = await res.json();
+  if (!result.success) {
+    throw new Error(result.message || 'Lưu thất bại');
   }
+}
+
 
   async updateDevice(device) {
     const res = await fetch(WEB_APP_URL, {
@@ -1325,6 +1321,7 @@ const db = new WebAppDB();
     </script>
 </body>
 </html>
+
 
 
 
