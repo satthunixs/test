@@ -31,15 +31,14 @@
        // ==================== CẤU HÌNH GOOGLE SHEETS ====================
      
 class WebAppDB {
-  async function loadDevices() {
-  const res = await fetch('', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ _action: 'get' }),
-  });
-
-  const data = await res.json();
-  setDevices(data);
+  async loadDevices() {
+    const res = await fetch('', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ _action: 'get' }),
+    });
+    return await res.json();
+  }
 }
 
  
@@ -1276,6 +1275,7 @@ class WebAppDB {
     </script>
 </body>
 </html>
+
 
 
 
