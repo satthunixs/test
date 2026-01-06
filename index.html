@@ -122,28 +122,73 @@ const db = new WebAppDB();
                 storageType: '', storageCapacity: '', monitor: '',
                 handoverDocument: null, handoverDocumentName: ''
             });
+
+//==================== Google Sheet ====================
+
+           const handleSaveDevice = async () => {
+    try {
+        if (editingId) {
+            await api.update({ ...formData, id: editingId });
+        } else {
+            await api.create(formData);
+        }
+
+        const data = await api.getAll();
+        setDevices(data);
+
+        setShowForm(false);
+        setEditingId(null);
+        setFormData({
+            name: '', type: '', departmentId: '', location: '',
+            status: 'active', purchaseDate: '', notes: '',
+            cpu: '', ramType: '', ramCapacity: '',
+            storageType: '', storageCapacity: '', monitor: '',
+            handoverDocument: null, handoverDocumentName: ''
+        });
+    } catch (e) {
+        console.error(e);
+        alert('Lưu thiết bị thất bại');
+    }
+};
+
+         const handleDeleteDevice = async (id) => {
+    if (!confirm('Xóa thiết bị này?')) return;
+
+    try {
+        await api.remove(id);
+        setDevices(await api.getAll());
+    } catch (e) {
+        console.error(e);
+        alert('Xóa thất bại');
+    }
+};
+
+
+           const handleEditDevice = (device) => {
+    setEditingId(device.id);
+    setFormData(device);
+    setShowForm(true);
+};
+
+
+
            
+           //==================== End Google Sheet ====================
 
             // ==================== LOCAL STORAGE ====================
-            useEffect(() => {
+           useEffect(() => {
     const loadData = async () => {
-        if (USE_GOOGLE_SHEETS) {
-            const rows = await db.readRange('Devices!A2:P1000');
-            const devs = rows.map((row, i) => ({
-                id: i + 1,
-                name: row[0] || '',
-                type: row[1] || '',
-                departmentId: parseInt(row[2]) || '',
-                // ... rest of fields
-            }));
-            setDevices(devs);
-        } else {
-            const saved = localStorage.getItem('devices');
-            if (saved) setDevices(JSON.parse(saved));
+        try {
+            const data = await api.getAll();
+            setDevices(data);
+        } catch (e) {
+            console.error(e);
+            alert('Không load được dữ liệu');
         }
     };
     loadData();
 }, []);
+
 
             // ==================== DEVICE CRUD ====================
             const handleSubmit = () => {
@@ -575,9 +620,20 @@ async function uploadFileToDrive() {
                 className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
                 title="Xuất Excel"
               >
+            
                 <Download className="w-5 h-5" />
                 Xuất Excel
               </button>
+               <button onClick={handleSaveDevice}>
+                    {editingId ? 'Cập nhật' : 'Thêm thiết bị'}
+               </button>
+               <button onClick={() => handleDeleteDevice(device.id)}>
+                <Trash2 className="w-4 h-4" />
+               </button>
+               <button onClick={() => handleEditDevice(device)}>
+                   <Edit2 className="w-4 h-4" />
+               </button>
+
              <button
                 onClick={uploadToDrive}
                 className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
@@ -1299,6 +1355,7 @@ async function uploadFileToDrive() {
     </script>
 </body>
 </html>
+
 
 
 
