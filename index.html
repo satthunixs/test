@@ -32,28 +32,7 @@
        // ==================== CẤU HÌNH GOOGLE SHEETS ====================
      
 
-class WebAppDB {
-  async getDevices() {
-    const res = await fetch('', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ _action: 'get' }),
-    });
-    return await res.json();
-  }
 
-  async addDevice(device) {
-    const res = await fetch('', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...device, _action: 'create' }),
-    });
-    return await res.json();
-  }
-}
-
-/* 🔴 DÒNG NÀY BẮT BUỘC PHẢI CÓ */
-const db = new WebAppDB();
 
  
 
@@ -1284,11 +1263,68 @@ const db = new WebAppDB();
 }//End JSX   
         
 
-        // Render app
-        ReactDOM.render(<DeviceManager />, document.getElementById('root'));
+     const db = {
+  getDevices(cb) {
+    google.script.run
+      .withSuccessHandler(cb)
+      .getDevices();
+  },
+
+  addDevice(device, cb) {
+    google.script.run
+      .withSuccessHandler(cb)
+      .addDevice(device);
+  },
+
+  updateDevice(device, cb) {
+    google.script.run
+      .withSuccessHandler(cb)
+      .updateDevice(device);
+  },
+
+  deleteDevice(id, cb) {
+    google.script.run
+      .withSuccessHandler(cb)
+      .deleteDevice(id);
+  }
+};
+
+/* === APP === */
+function App() {
+  const [devices, setDevices] = React.useState([]);
+
+  React.useEffect(() => {
+    db.getDevices(setDevices);
+  }, []);
+
+  const addDevice = () => {
+    db.addDevice({
+      name: 'Laptop Dell',
+      type: 'Laptop',
+      departmentId: 'IT',
+      location: 'P101',
+      status: 'active'
+    }, () => db.getDevices(setDevices));
+  };
+
+  return (
+    <div>
+      <button onClick={addDevice}>➕ Thêm thiết bị</button>
+      <ul>
+        {devices.map(d => (
+          <li key={d.id}>{d.name} - {d.type}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+       
     </script>
 </body>
 </html>
+
 
 
 
