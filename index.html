@@ -122,15 +122,6 @@ const db = USE_GOOGLE_SHEETS ? new GoogleSheetsDB(SHEET_ID, API_KEY) : null;
 
             // ==================== LOCAL STORAGE ====================
             useEffect(() => {
-                
-                const savedDepts = localStorage.getItem('departments');
-                const savedTypes = localStorage.getItem('deviceTypes');
-            
-                if (savedDepts) setDepartments(JSON.parse(savedDepts));
-                if (savedTypes) setDeviceTypes(JSON.parse(savedTypes));
-            }, []);
-           
-            useEffect(() => {
     const loadData = async () => {
         if (USE_GOOGLE_SHEETS) {
             const rows = await db.readRange('Devices!A2:P1000');
@@ -149,17 +140,6 @@ const db = USE_GOOGLE_SHEETS ? new GoogleSheetsDB(SHEET_ID, API_KEY) : null;
     };
     loadData();
 }, []);
-            useEffect(() => {
-                localStorage.setItem('devices', JSON.stringify(devices));
-            }, [devices]);
-
-            useEffect(() => {
-                localStorage.setItem('departments', JSON.stringify(departments));
-            }, [departments]);
-
-            useEffect(() => {
-                localStorage.setItem('deviceTypes', JSON.stringify(deviceTypes));
-            }, [deviceTypes]);
 
             // ==================== DEVICE CRUD ====================
             const handleSubmit = () => {
@@ -1315,6 +1295,7 @@ async function uploadFileToDrive() {
     </script>
 </body>
 </html>
+
 
 
 
