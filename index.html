@@ -27,11 +27,13 @@
     
     <script type="text/babel">
         const { useState, useEffect } = React;
+       
 
        // ==================== CẤU HÌNH GOOGLE SHEETS ====================
      
+
 class WebAppDB {
-  async loadDevices() {
+  async getDevices() {
     const res = await fetch('', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -39,7 +41,19 @@ class WebAppDB {
     });
     return await res.json();
   }
+
+  async addDevice(device) {
+    const res = await fetch('', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...device, _action: 'create' }),
+    });
+    return await res.json();
+  }
 }
+
+/* 🔴 DÒNG NÀY BẮT BUỘC PHẢI CÓ */
+const db = new WebAppDB();
 
  
 
@@ -1275,6 +1289,7 @@ class WebAppDB {
     </script>
 </body>
 </html>
+
 
 
 
