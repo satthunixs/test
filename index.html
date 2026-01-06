@@ -542,14 +542,8 @@
                 <Download className="w-5 h-5" />
                 Xuất Excel
               </button>
-               <button onClick={handleSaveDevice}>
-                    {editingId ? 'Cập nhật' : 'Thêm thiết bị'}
-               </button>
-               <button onClick={() => handleDeleteDevice(device.id)}>
-                <Trash2 className="w-4 h-4" />
-               </button>
-               <button onClick={() => handleEditDevice(device)}>
-                   <Edit2 className="w-4 h-4" />
+               <button onClick={handleAddDevice}>
+                    Lưu thiết bị
                </button>
 
             
@@ -1269,10 +1263,13 @@
       .getDevices();
   },
 
+ const handleAddDevice = () => {
   db.addDevice(formData, () => {
-  db.getDevices(setDevices);
-  setShowForm(false);
-});
+    db.getDevices(setDevices);
+    setShowForm(false);
+  });
+};
+
 
   updateDevice(device, cb) {
     google.script.run
@@ -1324,6 +1321,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(<App />);
     </script>
 </body>
 </html>
+
 
 
 
