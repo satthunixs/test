@@ -29,65 +29,20 @@
         const { useState, useEffect } = React;
 
        // ==================== CẤU HÌNH GOOGLE SHEETS ====================
-       const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwd5BI6LJkK9cgid8iPQAAI_mwgweDb1tBxdU2d-IuDZiXXQIP4fjqCisC8KYZyBvnQcQ/exec';
+     
 class WebAppDB {
-  async getDevices() {
-    const res = await fetch(WEB_APP_URL + '?t=' + Date.now());
-    return await res.json();
-  }
-
-  async addDevice(device) {
-  const res = await fetch(WEB_APP_URL, {
+  async function loadDevices() {
+  const res = await fetch('', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ ...device, _action: 'create' }),
+    body: JSON.stringify({ _action: 'get' }),
   });
 
-  const result = await res.json();
-  if (!result.success) {
-    throw new Error(result.message || 'Lưu thất bại');
-  }
+  const data = await res.json();
+  setDevices(data);
 }
 
-
-  async updateDevice(device) {
-    const res = await fetch(WEB_APP_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        ...device,
-        _action: 'update',
-      }),
-    });
-
-    const data = await res.json();
-    if (!data.success) {
-      throw new Error('Update failed');
-    }
-  }
-
-  async deleteDevice(id) {
-    const res = await fetch(WEB_APP_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        id,
-        _action: 'delete',
-      }),
-    });
-
-    const data = await res.json();
-    if (!data.success) {
-      throw new Error('Delete failed');
-    }
-  }
-}
-
-const db = new WebAppDB();
+ 
 
 
 
@@ -1321,6 +1276,7 @@ const db = new WebAppDB();
     </script>
 </body>
 </html>
+
 
 
 
