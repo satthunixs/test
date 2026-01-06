@@ -31,44 +31,34 @@
        // ==================== CẤU HÌNH GOOGLE SHEETS ====================
        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwd5BI6LJkK9cgid8iPQAAI_mwgweDb1tBxdU2d-IuDZiXXQIP4fjqCisC8KYZyBvnQcQ/exec';
 
+const WEB_APP_URL = 'DÁN URL WEB APP MỚI NHẤT Ở ĐÂY';
+
 class WebAppDB {
-    async getDevices() {
-        const res = await fetch(WEB_APP_URL);
-        return await res.json();
-    }
+  async getDevices() {
+    const res = await fetch(WEB_APP_URL + '?t=' + Date.now());
+    return await res.json();
+  }
 
-    async addDevice(device) {
-        await fetch(WEB_APP_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                _action: 'create',
-                ...device
-            })
-        });
-    }
+  async addDevice(device) {
+    await fetch(WEB_APP_URL, {
+      method: 'POST',
+      body: JSON.stringify({ ...device, _action: 'create' }),
+    });
+  }
 
-    async updateDevice(device) {
-        await fetch(WEB_APP_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                _action: 'update',
-                ...device
-            })
-        });
-    }
+  async updateDevice(device) {
+    await fetch(WEB_APP_URL, {
+      method: 'POST',
+      body: JSON.stringify({ ...device, _action: 'update' }),
+    });
+  }
 
-    async deleteDevice(id) {
-        await fetch(WEB_APP_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                _action: 'delete',
-                id
-            })
-        });
-    }
+  async deleteDevice(id) {
+    await fetch(WEB_APP_URL, {
+      method: 'POST',
+      body: JSON.stringify({ id, _action: 'delete' }),
+    });
+  }
 }
 
 const db = new WebAppDB();
@@ -189,18 +179,13 @@ const db = new WebAppDB();
            //==================== End Google Sheet ====================
 
             // ==================== LOCAL STORAGE ====================
-           useEffect(() => {
-    const loadData = async () => {
-        try {
-            const data = await api.getAll();
-            setDevices(data);
-        } catch (e) {
-            console.error(e);
-            alert('Không load được dữ liệu');
-        }
-    };
-    loadData();
+        useEffect(() => {
+  db.getDevices().then(data => {
+    console.log('DEVICES FROM API:', data);
+    setDevices(data);
+  });
 }, []);
+
 
 
             // ==================== DEVICE CRUD ====================
@@ -1368,6 +1353,7 @@ async function uploadFileToDrive() {
     </script>
 </body>
 </html>
+
 
 
 
