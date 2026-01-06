@@ -40,26 +40,39 @@ class WebAppDB {
     async addDevice(device) {
         await fetch(WEB_APP_URL, {
             method: 'POST',
-            body: JSON.stringify(device),
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                _action: 'create',
+                ...device
+            })
         });
     }
 
     async updateDevice(device) {
         await fetch(WEB_APP_URL, {
-            method: 'PUT',
-            body: JSON.stringify(device),
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                _action: 'update',
+                ...device
+            })
         });
     }
 
     async deleteDevice(id) {
         await fetch(WEB_APP_URL, {
-            method: 'DELETE',
-            body: JSON.stringify({ id }),
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                _action: 'delete',
+                id
+            })
         });
     }
 }
 
 const db = new WebAppDB();
+
 
 
         // ==================== ICON COMPONENTS ====================
@@ -1355,6 +1368,7 @@ async function uploadFileToDrive() {
     </script>
 </body>
 </html>
+
 
 
 
