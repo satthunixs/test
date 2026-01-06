@@ -512,63 +512,7 @@ const db = new WebAppDB();
             
 
             //****Upoad Function ****
-let accessToken = null;
 
-function initTokenClient() {
-  return google.accounts.oauth2.initTokenClient({
-    client_id: "1064519622106-se6q9gv5scdo2c8cnkcvjmn2028b6ifb.apps.googleusercontent.com",
-    scope: "https://www.googleapis.com/auth/drive.file",
-    callback: (tokenResponse) => {
-      accessToken = tokenResponse.access_token;
-      uploadFileToDrive();
-    },
-  });
-}
-
-let tokenClient = null;
-
-const uploadToDrive = () => {
-  if (!tokenClient) {
-    tokenClient = initTokenClient();
-  }
-
-  tokenClient.requestAccessToken();
-};
-
-async function uploadFileToDrive() {
-  const input = document.getElementById("fileInput");
-  if (!input.files.length) {
-    alert("Chưa chọn file");
-    return;
-  }
-
-  const file = input.files[0];
-  const metadata = {
-    name: file.name,
-  };
-
-  const form = new FormData();
-  form.append(
-    "metadata",
-    new Blob([JSON.stringify(metadata)], { type: "application/json" })
-  );
-  form.append("file", file);
-
-  const res = await fetch(
-    "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart",
-    {
-      method: "POST",
-      headers: {
-        Authorization: "Bearer " + accessToken,
-      },
-      body: form,
-    }
-  );
-
-  const data = await res.json();
-  console.log("Uploaded:", data);
-  alert("Upload thành công lên Drive của bạn");
-}
             //****End Upload Function****
 
 
@@ -1381,6 +1325,7 @@ async function uploadFileToDrive() {
     </script>
 </body>
 </html>
+
 
 
 
