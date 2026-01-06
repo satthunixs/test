@@ -29,35 +29,39 @@
         const { useState, useEffect } = React;
 
        // ==================== CẤU HÌNH GOOGLE SHEETS ====================
-const USE_GOOGLE_SHEETS = true; // Đổi thành true để dùng Google Sheets
-const SHEET_ID = '1p1f8jcui_oudn7OJ7x9yFHDGysgAHj5jY71CCc6SNvM';
-const API_KEY = 'AIzaSyBsSkCKcp9KrgXm7uOb3XU6T2eKL9YMM-c';
+       const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwd5BI6LJkK9cgid8iPQAAI_mwgweDb1tBxdU2d-IuDZiXXQIP4fjqCisC8KYZyBvnQcQ/exec';
 
-// Google Sheets API
-class GoogleSheetsDB {
-    constructor(sheetId, apiKey) {
-        this.sheetId = sheetId;
-        this.apiKey = apiKey;
-        this.baseUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}`;
+class WebAppDB {
+    async getDevices() {
+        const res = await fetch(WEB_APP_URL);
+        return await res.json();
     }
 
-    async readRange(range) {
-        const response = await fetch(`${this.baseUrl}/values/${range}?key=${this.apiKey}`);
-        const data = await response.json();
-        return data.values || [];
+    async addDevice(device) {
+        await fetch(WEB_APP_URL, {
+            method: 'POST',
+            body: JSON.stringify(device),
+        });
     }
 
-    async writeRange(range, values) {
-        await fetch(`${this.baseUrl}/values/${range}?valueInputOption=RAW&key=${this.apiKey}`, {
+    async updateDevice(device) {
+        await fetch(WEB_APP_URL, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ values })
+            body: JSON.stringify(device),
+        });
+    }
+
+    async deleteDevice(id) {
+        await fetch(WEB_APP_URL, {
+            method: 'DELETE',
+            body: JSON.stringify({ id }),
         });
     }
 }
 
-const db = USE_GOOGLE_SHEETS ? new GoogleSheetsDB(SHEET_ID, API_KEY) : null;
-        
+const db = new WebAppDB();
+
+
         // ==================== ICON COMPONENTS ====================
         const Plus = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>;
         const Edit2 = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}><path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" /></svg>;
@@ -1295,6 +1299,7 @@ async function uploadFileToDrive() {
     </script>
 </body>
 </html>
+
 
 
 
