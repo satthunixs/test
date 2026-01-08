@@ -3,13 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản Lý Thiết Bị - Google Sheets OAuth</title>
+    <title>Quản Lý Thiết Bị - Google Sheets</title>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .loading { border: 3px solid #f3f3f3; border-top: 3px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    </style>
 </head>
 <body>
     <div id="root"></div>
@@ -21,14 +17,12 @@
     <script type="text/babel">
         const { useState, useEffect } = React;
 
-        // ========== CẤU HÌNH - THAY ĐỔI 3 DÒNG NÀY ==========
         const CLIENT_ID = '1064519622106-i4mstqaofrnlfmfva7hkqgplq8q0cmfa.apps.googleusercontent.com';
         const API_KEY = 'AIzaSyAiVhZgrW00JSWs8N03QAvb5CAd0M_bl6U';
         const SHEET_ID = '1lW0u1j_eldirbankayCwDPdhDXCWU7HrQYnO7DNHBQU';
         const SHEET_NAME = 'Devices';
         const SCOPES = 'https://www.googleapis.com/auth/spreadsheets';
 
-        // Google Sheets API với OAuth
         class GoogleSheetsDB {
             constructor(sheetId, apiKey) {
                 this.sheetId = sheetId;
@@ -44,87 +38,61 @@
             async readRange(range) {
                 try {
                     const headers = {};
-                    if (this.accessToken) {
-                        headers['Authorization'] = `Bearer ${this.accessToken}`;
-                    }
-                    const url = this.accessToken 
-                        ? `${this.baseUrl}/values/${range}`
-                        : `${this.baseUrl}/values/${range}?key=${this.apiKey}`;
-                    
+                    if (this.accessToken) headers['Authorization'] = `Bearer ${this.accessToken}`;
+                    const url = this.accessToken ? `${this.baseUrl}/values/${range}` : `${this.baseUrl}/values/${range}?key=${this.apiKey}`;
                     const response = await fetch(url, { headers });
-                    if (!response.ok) throw new Error('Lỗi đọc dữ liệu');
+                    if (!response.ok) throw new Error('Lỗi đọc');
                     const data = await response.json();
                     return data.values || [];
                 } catch (error) {
-                    console.error('Lỗi:', error);
+                    console.error(error);
                     throw error;
                 }
             }
 
             async appendRow(range, values) {
-                if (!this.accessToken) throw new Error('Chưa đăng nhập Google');
+                if (!this.accessToken) throw new Error('Chưa đăng nhập');
                 try {
-                    const response = await fetch(
-                        `${this.baseUrl}/values/${range}:append?valueInputOption=RAW`,
-                        {
-                            method: 'POST',
-                            headers: {
-                                'Authorization': `Bearer ${this.accessToken}`,
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({ values: [values] })
-                        }
-                    );
-                    if (!response.ok) {
-                        const error = await response.json();
-                        throw new Error(error.error?.message || 'Lỗi thêm dữ liệu');
-                    }
+                    const response = await fetch(`${this.baseUrl}/values/${range}:append?valueInputOption=RAW`, {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${this.accessToken}`, 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ values: [values] })
+                    });
+                    if (!response.ok) throw new Error('Lỗi thêm');
                     return await response.json();
                 } catch (error) {
-                    console.error('Lỗi:', error);
+                    console.error(error);
                     throw error;
                 }
             }
 
             async updateRow(range, values) {
-                if (!this.accessToken) throw new Error('Chưa đăng nhập Google');
+                if (!this.accessToken) throw new Error('Chưa đăng nhập');
                 try {
-                    const response = await fetch(
-                        `${this.baseUrl}/values/${range}?valueInputOption=RAW`,
-                        {
-                            method: 'PUT',
-                            headers: {
-                                'Authorization': `Bearer ${this.accessToken}`,
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({ values: [values] })
-                        }
-                    );
+                    const response = await fetch(`${this.baseUrl}/values/${range}?valueInputOption=RAW`, {
+                        method: 'PUT',
+                        headers: { 'Authorization': `Bearer ${this.accessToken}`, 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ values: [values] })
+                    });
                     if (!response.ok) throw new Error('Lỗi cập nhật');
                     return await response.json();
                 } catch (error) {
-                    console.error('Lỗi:', error);
+                    console.error(error);
                     throw error;
                 }
             }
 
             async clearRange(range) {
-                if (!this.accessToken) throw new Error('Chưa đăng nhập Google');
+                if (!this.accessToken) throw new Error('Chưa đăng nhập');
                 try {
-                    const response = await fetch(
-                        `${this.baseUrl}/values/${range}:clear`,
-                        {
-                            method: 'POST',
-                            headers: {
-                                'Authorization': `Bearer ${this.accessToken}`,
-                                'Content-Type': 'application/json'
-                            }
-                        }
-                    );
+                    const response = await fetch(`${this.baseUrl}/values/${range}:clear`, {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${this.accessToken}`, 'Content-Type': 'application/json' }
+                    });
                     if (!response.ok) throw new Error('Lỗi xóa');
                     return await response.json();
                 } catch (error) {
-                    console.error('Lỗi:', error);
+                    console.error(error);
                     throw error;
                 }
             }
@@ -132,19 +100,18 @@
 
         const db = new GoogleSheetsDB(SHEET_ID, API_KEY);
 
-        // Icons
-        const Plus = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>;
-        const Edit2 = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}><path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" /></svg>;
-        const Trash2 = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}><path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" /></svg>;
-        const Search = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}><path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>;
-        const CheckCircle = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>;
-        const XCircle = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}><path strokeLinecap="round" strokeLinejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>;
-        const AlertCircle = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" /></svg>;
-        const FolderOpen = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 0 0-1.883 2.542l.857 6a2.25 2.25 0 0 0 2.227 1.932H19.05a2.25 2.25 0 0 0 2.227-1.932l.857-6a2.25 2.25 0 0 0-1.883-2.542m-16.5 0V6A2.25 2.25 0 0 1 6 3.75h3.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12a1.5 1.5 0 0 0 1.06.44H18A2.25 2.25 0 0 1 20.25 9v.776" /></svg>;
-        const ChevronDown = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}><path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>;
-        const ChevronRight = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}><path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>;
-        const RefreshCw = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}><path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>;
-        const LogIn = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" /></svg>;
+        const Plus = ({c}) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={c}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>;
+        const Edit2 = ({c}) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={c}><path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" /></svg>;
+        const Trash2 = ({c}) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={c}><path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" /></svg>;
+        const Search = ({c}) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={c}><path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>;
+        const CheckCircle = ({c}) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={c}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>;
+        const XCircle = ({c}) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={c}><path strokeLinecap="round" strokeLinejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>;
+        const AlertCircle = ({c}) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={c}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" /></svg>;
+        const FolderOpen = ({c}) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={c}><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 0 0-1.883 2.542l.857 6a2.25 2.25 0 0 0 2.227 1.932H19.05a2.25 2.25 0 0 0 2.227-1.932l.857-6a2.25 2.25 0 0 0-1.883-2.542m-16.5 0V6A2.25 2.25 0 0 1 6 3.75h3.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12a1.5 1.5 0 0 0 1.06.44H18A2.25 2.25 0 0 1 20.25 9v.776" /></svg>;
+        const ChevronDown = ({c}) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={c}><path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>;
+        const ChevronRight = ({c}) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={c}><path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>;
+        const RefreshCw = ({c}) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={c}><path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>;
+        const LogIn = ({c}) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={c}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" /></svg>;
 
         function DeviceManager() {
             const [devices, setDevices] = useState([]);
@@ -155,7 +122,7 @@
                 { id: 4, name: 'Phòng Nhân sự', color: 'bg-yellow-100 text-yellow-800' },
                 { id: 5, name: 'Phòng Sản xuất', color: 'bg-red-100 text-red-800' },
             ]);
-            const [deviceTypes] = useState(['Máy bàn', 'Laptop', 'Máy in', 'Máy scan', 'Máy chiếu', 'Màn hình', 'Router', 'Switch', 'Điện thoại']);
+            const [deviceTypes] = useState(['Máy bàn', 'Laptop', 'Máy in', 'Máy scan', 'Máy chiếu', 'Màn hình', 'Router', 'Switch']);
             const [expandedDepts, setExpandedDepts] = useState({});
             const [searchTerm, setSearchTerm] = useState('');
             const [showForm, setShowForm] = useState(false);
@@ -164,7 +131,6 @@
             const [loading, setLoading] = useState(false);
             const [error, setError] = useState(null);
             const [isSignedIn, setIsSignedIn] = useState(false);
-            const [userEmail, setUserEmail] = useState('');
             const [tokenClient, setTokenClient] = useState(null);
             const [formData, setFormData] = useState({
                 name: '', type: '', departmentId: '', location: '', status: 'active',
@@ -191,14 +157,11 @@
                 } else {
                     window.addEventListener('load', initClient);
                 }
-
                 loadDataFromSheets();
             }, []);
 
             const handleSignIn = () => {
-                if (tokenClient) {
-                    tokenClient.requestAccessToken();
-                }
+                if (tokenClient) tokenClient.requestAccessToken();
             };
 
             const loadDataFromSheets = async () => {
@@ -225,17 +188,16 @@
                     }));
                     setDevices(devs);
                 } catch (error) {
-                    setError('Không thể tải dữ liệu. Kiểm tra cấu hình.');
+                    setError('Lỗi tải dữ liệu');
                 }
                 setLoading(false);
             };
 
-            const saveDeviceToSheets = async (device) => {
+            const saveDevice = async (device) => {
                 if (!isSignedIn) {
-                    setError('Vui lòng đăng nhập Google để lưu dữ liệu');
+                    setError('Vui lòng đăng nhập Google');
                     return false;
                 }
-
                 setLoading(true);
                 setError(null);
                 try {
@@ -245,7 +207,6 @@
                         device.cpu, device.ramType, device.ramCapacity,
                         device.storageType, device.storageCapacity, device.monitor
                     ];
-
                     if (editingRowIndex) {
                         await db.updateRow(`${SHEET_NAME}!A${editingRowIndex}:M${editingRowIndex}`, rowData);
                     } else {
@@ -254,26 +215,25 @@
                     await loadDataFromSheets();
                     return true;
                 } catch (error) {
-                    setError('Không thể lưu: ' + error.message);
+                    setError('Lỗi lưu: ' + error.message);
                     return false;
                 } finally {
                     setLoading(false);
                 }
             };
 
-            const deleteDeviceFromSheets = async (rowIndex) => {
+            const deleteDevice = async (rowIndex) => {
                 if (!isSignedIn) {
-                    setError('Vui lòng đăng nhập Google để xóa dữ liệu');
+                    setError('Vui lòng đăng nhập Google');
                     return false;
                 }
-
                 setLoading(true);
                 try {
                     await db.clearRange(`${SHEET_NAME}!A${rowIndex}:M${rowIndex}`);
                     await loadDataFromSheets();
                     return true;
                 } catch (error) {
-                    setError('Không thể xóa dữ liệu');
+                    setError('Lỗi xóa');
                     return false;
                 } finally {
                     setLoading(false);
@@ -282,10 +242,10 @@
 
             const handleSubmit = async () => {
                 if (!formData.name || !formData.type || !formData.departmentId) {
-                    alert('Vui lòng điền đầy đủ thông tin bắt buộc');
+                    alert('Vui lòng điền đầy đủ thông tin');
                     return;
                 }
-                const success = await saveDeviceToSheets(formData);
+                const success = await saveDevice(formData);
                 if (success) resetForm();
             };
 
@@ -308,12 +268,12 @@
             };
 
             const handleDelete = async (device) => {
-                if (confirm('Bạn có chắc muốn xóa thiết bị này?')) {
-                    await deleteDeviceFromSheets(device.rowIndex);
+                if (confirm('Xóa thiết bị này?')) {
+                    await deleteDevice(device.rowIndex);
                 }
             };
 
-            const toggleDepartment = (deptId) => {
+            const toggleDept = (deptId) => {
                 setExpandedDepts(prev => ({ ...prev, [deptId]: !prev[deptId] }));
             };
 
@@ -323,24 +283,18 @@
                 (d.location && d.location.toLowerCase().includes(searchTerm.toLowerCase()))
             );
 
-            const getDevicesByDepartment = (deptId) => filteredDevices.filter(d => d.departmentId === deptId);
+            const getDevicesByDept = (deptId) => filteredDevices.filter(d => d.departmentId === deptId);
 
             const getStatusIcon = (status) => {
-                switch(status) {
-                    case 'active': return <CheckCircle className="w-5 h-5 text-green-500" />;
-                    case 'maintenance': return <AlertCircle className="w-5 h-5 text-yellow-500" />;
-                    case 'inactive': return <XCircle className="w-5 h-5 text-red-500" />;
-                    default: return null;
-                }
+                if (status === 'active') return <CheckCircle c="w-5 h-5 text-green-500" />;
+                if (status === 'maintenance') return <AlertCircle c="w-5 h-5 text-yellow-500" />;
+                return <XCircle c="w-5 h-5 text-red-500" />;
             };
 
             const getStatusText = (status) => {
-                switch(status) {
-                    case 'active': return 'Hoạt động';
-                    case 'maintenance': return 'Bảo trì';
-                    case 'inactive': return 'Ngừng hoạt động';
-                    default: return status;
-                }
+                if (status === 'active') return 'Hoạt động';
+                if (status === 'maintenance') return 'Bảo trì';
+                return 'Ngừng hoạt động';
             };
 
             return (
@@ -349,70 +303,110 @@
                         <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <h1 className="text-3xl font-bold text-gray-800 mb-2">Quản Lý Thiết Bị Máy Móc</h1>
-                                    <p className="text-gray-600">Đồng bộ với Google Sheets</p>
+                                    <h1 className="text-3xl font-bold text-gray-800 mb-2">Quản Lý Thiết Bị</h1>
+                                    <p className="text-gray-600">Đồng bộ Google Sheets</p>
                                 </div>
                                 {!isSignedIn ? (
-                                    <button
-                                        onClick={handleSignIn}
-                                        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg flex items-center gap-2"
-                                    >
-                                        <LogIn className="w-5 h-5" />
+                                    <button onClick={handleSignIn} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg flex items-center gap-2">
+                                        <LogIn c="w-5 h-5" />
                                         Đăng nhập Google
                                     </button>
                                 ) : (
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white font-bold">✓</div>
+                                        <span className="text-sm text-green-600 font-medium">Đã đăng nhập</span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {error && (
+                            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6 flex items-center">
+                                <AlertCircle c="w-5 h-5 mr-2" />
+                                {error}
+                            </div>
+                        )}
+
+                        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+                            <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
+                                <div className="relative flex-1 w-full">
+                                    <Search c="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                                    <input
+                                        type="text"
+                                        placeholder="Tìm kiếm..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
+                                <div className="flex gap-2">
+                                    <button onClick={loadDataFromSheets} disabled={loading} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 disabled:opacity-50">
+                                        <RefreshCw c={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
+                                        Tải lại
+                                    </button>
+                                    <button onClick={() => setShowForm(!showForm)} disabled={loading} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 disabled:opacity-50">
+                                        <Plus c="w-5 h-5" />
+                                        Thêm
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {showForm && (
+                            <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+                                <h2 className="text-xl font-semibold mb-4">{editingId ? 'Sửa thiết bị' : 'Thêm thiết bị'}</h2>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Tên *</label>
+                                        <input type="text" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Loại *</label>
+                                        <select value={formData.type} onChange={(e) => setFormData({...formData, type: e.target.value})} className="w-full px-3 py-2 border rounded-lg">
+                                            <option value="">-- Chọn --</option>
+                                            {deviceTypes.map((t, i) => <option key={i} value={t}>{t}</option>)}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Phòng ban *</label>
+                                        <select value={formData.departmentId} onChange={(e) => setFormData({...formData, departmentId: parseInt(e.target.value)})} className="w-full px-3 py-2 border rounded-lg">
+                                            <option value="">-- Chọn --</option>
+                                            {departments.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Vị trí</label>
+                                        <input type="text" value={formData.location} onChange={(e) => setFormData({...formData, location: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
+                                    </div>
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">Trạng thái</label>
-                                        <select
-                                            value={formData.status}
-                                            onChange={(e) => setFormData({...formData, status: e.target.value})}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                        >
+                                        <select value={formData.status} onChange={(e) => setFormData({...formData, status: e.target.value})} className="w-full px-3 py-2 border rounded-lg">
                                             <option value="active">Hoạt động</option>
                                             <option value="maintenance">Bảo trì</option>
-                                            <option value="inactive">Ngừng hoạt động</option>
+                                            <option value="inactive">Ngừng</option>
                                         </select>
                                     </div>
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">Ngày mua</label>
-                                        <input
-                                            type="date"
-                                            value={formData.purchaseDate}
-                                            onChange={(e) => setFormData({...formData, purchaseDate: e.target.value})}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                        />
+                                        <input type="date" value={formData.purchaseDate} onChange={(e) => setFormData({...formData, purchaseDate: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
                                     </div>
 
                                     {(formData.type === 'Máy bàn' || formData.type === 'Laptop') && (
                                         <>
                                             <div>
                                                 <label className="block text-sm font-medium text-gray-700 mb-1">CPU</label>
-                                                <input
-                                                    type="text"
-                                                    placeholder="VD: Intel Core i5-12400"
-                                                    value={formData.cpu}
-                                                    onChange={(e) => setFormData({...formData, cpu: e.target.value})}
-                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                                />
+                                                <input type="text" placeholder="Intel Core i5" value={formData.cpu} onChange={(e) => setFormData({...formData, cpu: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
                                             </div>
                                             <div>
                                                 <label className="block text-sm font-medium text-gray-700 mb-1">RAM</label>
                                                 <div className="flex gap-2">
-                                                    <select
-                                                        value={formData.ramType}
-                                                        onChange={(e) => setFormData({...formData, ramType: e.target.value})}
-                                                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                                    >
+                                                    <select value={formData.ramType} onChange={(e) => setFormData({...formData, ramType: e.target.value})} className="flex-1 px-3 py-2 border rounded-lg">
                                                         <option value="">Loại</option>
                                                         <option value="DDR3">DDR3</option>
                                                         <option value="DDR4">DDR4</option>
                                                         <option value="DDR5">DDR5</option>
                                                     </select>
-                                                    <select
-                                                        value={formData.ramCapacity}
-                                                        onChange={(e) => setFormData({...formData, ramCapacity: e.target.value})}
-                                                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                                    >
+                                                    <select value={formData.ramCapacity} onChange={(e) => setFormData({...formData, ramCapacity: e.target.value})} className="flex-1 px-3 py-2 border rounded-lg">
                                                         <option value="">Dung lượng</option>
                                                         <option value="4GB">4GB</option>
                                                         <option value="8GB">8GB</option>
@@ -424,21 +418,13 @@
                                             <div>
                                                 <label className="block text-sm font-medium text-gray-700 mb-1">Ổ cứng</label>
                                                 <div className="flex gap-2">
-                                                    <select
-                                                        value={formData.storageType}
-                                                        onChange={(e) => setFormData({...formData, storageType: e.target.value})}
-                                                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                                    >
+                                                    <select value={formData.storageType} onChange={(e) => setFormData({...formData, storageType: e.target.value})} className="flex-1 px-3 py-2 border rounded-lg">
                                                         <option value="">Loại</option>
                                                         <option value="HDD">HDD</option>
                                                         <option value="SSD SATA">SSD SATA</option>
                                                         <option value="SSD NVMe">SSD NVMe</option>
                                                     </select>
-                                                    <select
-                                                        value={formData.storageCapacity}
-                                                        onChange={(e) => setFormData({...formData, storageCapacity: e.target.value})}
-                                                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                                    >
+                                                    <select value={formData.storageCapacity} onChange={(e) => setFormData({...formData, storageCapacity: e.target.value})} className="flex-1 px-3 py-2 border rounded-lg">
                                                         <option value="">Dung lượng</option>
                                                         <option value="256GB">256GB</option>
                                                         <option value="512GB">512GB</option>
@@ -449,41 +435,21 @@
                                             </div>
                                             <div>
                                                 <label className="block text-sm font-medium text-gray-700 mb-1">Màn hình</label>
-                                                <input
-                                                    type="text"
-                                                    placeholder="VD: 24 inch Full HD"
-                                                    value={formData.monitor}
-                                                    onChange={(e) => setFormData({...formData, monitor: e.target.value})}
-                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                                />
+                                                <input type="text" placeholder="24 inch Full HD" value={formData.monitor} onChange={(e) => setFormData({...formData, monitor: e.target.value})} className="w-full px-3 py-2 border rounded-lg" />
                                             </div>
                                         </>
                                     )}
 
                                     <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-1">Ghi chú</label>
-                                        <textarea
-                                            value={formData.notes}
-                                            onChange={(e) => setFormData({...formData, notes: e.target.value})}
-                                            rows="3"
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                        />
+                                        <textarea value={formData.notes} onChange={(e) => setFormData({...formData, notes: e.target.value})} rows="3" className="w-full px-3 py-2 border rounded-lg" />
                                     </div>
 
                                     <div className="md:col-span-2 flex gap-3">
-                                        <button
-                                            onClick={handleSubmit}
-                                            disabled={loading || !isSignedIn}
-                                            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg disabled:opacity-50"
-                                        >
+                                        <button onClick={handleSubmit} disabled={loading || !isSignedIn} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg disabled:opacity-50">
                                             {editingId ? 'Cập nhật' : 'Thêm'}
                                         </button>
-                                        <button
-                                            onClick={resetForm}
-                                            className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg"
-                                        >
-                                            Hủy
-                                        </button>
+                                        <button onClick={resetForm} className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg">Hủy</button>
                                     </div>
                                 </div>
                             </div>
@@ -491,22 +457,17 @@
 
                         <div className="space-y-4">
                             {departments.map(dept => {
-                                const deptDevices = getDevicesByDepartment(dept.id);
+                                const deptDevices = getDevicesByDept(dept.id);
                                 const isExpanded = expandedDepts[dept.id];
                                 
                                 return (
                                     <div key={dept.id} className="bg-white rounded-lg shadow-lg overflow-hidden">
-                                        <div
-                                            onClick={() => toggleDepartment(dept.id)}
-                                            className="cursor-pointer bg-gradient-to-r from-gray-50 to-gray-100 p-4 flex items-center justify-between hover:bg-gray-200"
-                                        >
+                                        <div onClick={() => toggleDept(dept.id)} className="cursor-pointer bg-gradient-to-r from-gray-50 to-gray-100 p-4 flex items-center justify-between hover:bg-gray-200">
                                             <div className="flex items-center gap-3">
-                                                {isExpanded ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
-                                                <FolderOpen className="w-6 h-6 text-gray-600" />
+                                                {isExpanded ? <ChevronDown c="w-5 h-5" /> : <ChevronRight c="w-5 h-5" />}
+                                                <FolderOpen c="w-6 h-6 text-gray-600" />
                                                 <span className="font-semibold text-lg">{dept.name}</span>
-                                                <span className={`px-3 py-1 rounded-full text-sm font-medium ${dept.color}`}>
-                                                    {deptDevices.length} thiết bị
-                                                </span>
+                                                <span className={`px-3 py-1 rounded-full text-sm font-medium ${dept.color}`}>{deptDevices.length} thiết bị</span>
                                             </div>
                                         </div>
 
@@ -526,9 +487,7 @@
                                                     <tbody className="divide-y divide-gray-200">
                                                         {deptDevices.length === 0 ? (
                                                             <tr>
-                                                                <td colSpan="6" className="px-6 py-8 text-center text-gray-500">
-                                                                    Phòng ban này chưa có thiết bị
-                                                                </td>
+                                                                <td colSpan="6" className="px-6 py-8 text-center text-gray-500">Chưa có thiết bị</td>
                                                             </tr>
                                                         ) : (
                                                             deptDevices.map((device) => (
@@ -555,19 +514,11 @@
                                                                     </td>
                                                                     <td className="px-6 py-4 whitespace-nowrap">
                                                                         <div className="flex gap-2">
-                                                                            <button
-                                                                                onClick={() => handleEdit(device)}
-                                                                                className="text-blue-600 hover:text-blue-800 p-1"
-                                                                                title="Chỉnh sửa"
-                                                                            >
-                                                                                <Edit2 className="w-5 h-5" />
+                                                                            <button onClick={() => handleEdit(device)} className="text-blue-600 hover:text-blue-800 p-1" title="Sửa">
+                                                                                <Edit2 c="w-5 h-5" />
                                                                             </button>
-                                                                            <button
-                                                                                onClick={() => handleDelete(device)}
-                                                                                className="text-red-600 hover:text-red-800 p-1"
-                                                                                title="Xóa"
-                                                                            >
-                                                                                <Trash2 className="w-5 h-5" />
+                                                                            <button onClick={() => handleDelete(device)} className="text-red-600 hover:text-red-800 p-1" title="Xóa">
+                                                                                <Trash2 c="w-5 h-5" />
                                                                             </button>
                                                                         </div>
                                                                     </td>
@@ -585,9 +536,9 @@
 
                         <div className="bg-white rounded-lg shadow-lg p-4 mt-6">
                             <div className="flex justify-around text-sm text-gray-600">
-                                <div>Tổng số phòng ban: <span className="font-semibold text-blue-600">{departments.length}</span></div>
-                                <div>Tổng số thiết bị: <span className="font-semibold text-green-600">{devices.length}</span></div>
-                                <div>Đang hiển thị: <span className="font-semibold text-purple-600">{filteredDevices.length}</span></div>
+                                <div>Tổng phòng ban: <span className="font-semibold text-blue-600">{departments.length}</span></div>
+                                <div>Tổng thiết bị: <span className="font-semibold text-green-600">{devices.length}</span></div>
+                                <div>Hiển thị: <span className="font-semibold text-purple-600">{filteredDevices.length}</span></div>
                             </div>
                         </div>
                     </div>
@@ -599,4 +550,3 @@
     </script>
 </body>
 </html>
-
