@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản Lý Thiết Bị - Google Sheets</title>
+    <title>Quản Lý Thiết Bị - Google Sheets OAuth</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .loading { border: 3px solid #f3f3f3; border-top: 3px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
@@ -20,22 +21,37 @@
     <script type="text/babel">
         const { useState, useEffect } = React;
 
-        // ========== CẤU HÌNH - THAY ĐỔI 2 DÒNG NÀY ==========
-        const SHEET_ID = '1lW0u1j_eldirbankayCwDPdhDXCWU7HrQYnO7DNHBQU';
+        // ========== CẤU HÌNH - THAY ĐỔI 3 DÒNG NÀY ==========
+        const CLIENT_ID = '1064519622106-i4mstqaofrnlfmfva7hkqgplq8q0cmfa.apps.googleusercontent.com';
         const API_KEY = 'AIzaSyAiVhZgrW00JSWs8N03QAvb5CAd0M_bl6U';
+        const SHEET_ID = '1lW0u1j_eldirbankayCwDPdhDXCWU7HrQYnO7DNHBQU';
         const SHEET_NAME = 'Devices';
+        const SCOPES = 'https://www.googleapis.com/auth/spreadsheets';
 
-        // Google Sheets API Class
+        // Google Sheets API với OAuth
         class GoogleSheetsDB {
             constructor(sheetId, apiKey) {
                 this.sheetId = sheetId;
                 this.apiKey = apiKey;
                 this.baseUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}`;
+                this.accessToken = null;
+            }
+
+            setAccessToken(token) {
+                this.accessToken = token;
             }
 
             async readRange(range) {
                 try {
-                    const response = await fetch(`${this.baseUrl}/values/${range}?key=${this.apiKey}`);
+                    const headers = {};
+                    if (this.accessToken) {
+                        headers['Authorization'] = `Bearer ${this.accessToken}`;
+                    }
+                    const url = this.accessToken 
+                        ? `${this.baseUrl}/values/${range}`
+                        : `${this.baseUrl}/values/${range}?key=${this.apiKey}`;
+                    
+                    const response = await fetch(url, { headers });
                     if (!response.ok) throw new Error('Lỗi đọc dữ liệu');
                     const data = await response.json();
                     return data.values || [];
@@ -46,16 +62,23 @@
             }
 
             async appendRow(range, values) {
+                if (!this.accessToken) throw new Error('Chưa đăng nhập Google');
                 try {
                     const response = await fetch(
-                        `${this.baseUrl}/values/${range}:append?valueInputOption=RAW&key=${this.apiKey}`,
+                        `${this.baseUrl}/values/${range}:append?valueInputOption=RAW`,
                         {
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
+                            headers: {
+                                'Authorization': `Bearer ${this.accessToken}`,
+                                'Content-Type': 'application/json'
+                            },
                             body: JSON.stringify({ values: [values] })
                         }
                     );
-                    if (!response.ok) throw new Error('Lỗi thêm dữ liệu');
+                    if (!response.ok) {
+                        const error = await response.json();
+                        throw new Error(error.error?.message || 'Lỗi thêm dữ liệu');
+                    }
                     return await response.json();
                 } catch (error) {
                     console.error('Lỗi:', error);
@@ -64,12 +87,16 @@
             }
 
             async updateRow(range, values) {
+                if (!this.accessToken) throw new Error('Chưa đăng nhập Google');
                 try {
                     const response = await fetch(
-                        `${this.baseUrl}/values/${range}?valueInputOption=RAW&key=${this.apiKey}`,
+                        `${this.baseUrl}/values/${range}?valueInputOption=RAW`,
                         {
                             method: 'PUT',
-                            headers: { 'Content-Type': 'application/json' },
+                            headers: {
+                                'Authorization': `Bearer ${this.accessToken}`,
+                                'Content-Type': 'application/json'
+                            },
                             body: JSON.stringify({ values: [values] })
                         }
                     );
@@ -82,10 +109,17 @@
             }
 
             async clearRange(range) {
+                if (!this.accessToken) throw new Error('Chưa đăng nhập Google');
                 try {
                     const response = await fetch(
-                        `${this.baseUrl}/values/${range}:clear?key=${this.apiKey}`,
-                        { method: 'POST', headers: { 'Content-Type': 'application/json' } }
+                        `${this.baseUrl}/values/${range}:clear`,
+                        {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': `Bearer ${this.accessToken}`,
+                                'Content-Type': 'application/json'
+                            }
+                        }
                     );
                     if (!response.ok) throw new Error('Lỗi xóa');
                     return await response.json();
@@ -109,8 +143,8 @@
         const FolderOpen = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 0 0-1.883 2.542l.857 6a2.25 2.25 0 0 0 2.227 1.932H19.05a2.25 2.25 0 0 0 2.227-1.932l.857-6a2.25 2.25 0 0 0-1.883-2.542m-16.5 0V6A2.25 2.25 0 0 1 6 3.75h3.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12a1.5 1.5 0 0 0 1.06.44H18A2.25 2.25 0 0 1 20.25 9v.776" /></svg>;
         const ChevronDown = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}><path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>;
         const ChevronRight = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}><path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>;
-        const Cloud = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15a4.5 4.5 0 004.5 4.5h10.125a3.375 3.375 0 000-6.75 6 6 0 00-11.625-1.5A4.5 4.5 0 002.25 15z" /></svg>;
         const RefreshCw = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}><path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>;
+        const LogIn = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" /></svg>;
 
         function DeviceManager() {
             const [devices, setDevices] = useState([]);
@@ -129,11 +163,43 @@
             const [editingRowIndex, setEditingRowIndex] = useState(null);
             const [loading, setLoading] = useState(false);
             const [error, setError] = useState(null);
+            const [isSignedIn, setIsSignedIn] = useState(false);
+            const [userEmail, setUserEmail] = useState('');
+            const [tokenClient, setTokenClient] = useState(null);
             const [formData, setFormData] = useState({
                 name: '', type: '', departmentId: '', location: '', status: 'active',
                 purchaseDate: '', notes: '', cpu: '', ramType: '', ramCapacity: '',
                 storageType: '', storageCapacity: '', monitor: ''
             });
+
+            useEffect(() => {
+                const initClient = () => {
+                    const client = google.accounts.oauth2.initTokenClient({
+                        client_id: CLIENT_ID,
+                        scope: SCOPES,
+                        callback: (tokenResponse) => {
+                            db.setAccessToken(tokenResponse.access_token);
+                            setIsSignedIn(true);
+                            loadDataFromSheets();
+                        },
+                    });
+                    setTokenClient(client);
+                };
+
+                if (window.google) {
+                    initClient();
+                } else {
+                    window.addEventListener('load', initClient);
+                }
+
+                loadDataFromSheets();
+            }, []);
+
+            const handleSignIn = () => {
+                if (tokenClient) {
+                    tokenClient.requestAccessToken();
+                }
+            };
 
             const loadDataFromSheets = async () => {
                 setLoading(true);
@@ -159,17 +225,19 @@
                     }));
                     setDevices(devs);
                 } catch (error) {
-                    setError('Không thể tải dữ liệu. Kiểm tra SHEET_ID và API_KEY');
+                    setError('Không thể tải dữ liệu. Kiểm tra cấu hình.');
                 }
                 setLoading(false);
             };
 
-            useEffect(() => {
-                loadDataFromSheets();
-            }, []);
-
             const saveDeviceToSheets = async (device) => {
+                if (!isSignedIn) {
+                    setError('Vui lòng đăng nhập Google để lưu dữ liệu');
+                    return false;
+                }
+
                 setLoading(true);
+                setError(null);
                 try {
                     const rowData = [
                         device.name, device.type, device.departmentId.toString(),
@@ -186,7 +254,7 @@
                     await loadDataFromSheets();
                     return true;
                 } catch (error) {
-                    setError('Không thể lưu dữ liệu');
+                    setError('Không thể lưu: ' + error.message);
                     return false;
                 } finally {
                     setLoading(false);
@@ -194,6 +262,11 @@
             };
 
             const deleteDeviceFromSheets = async (rowIndex) => {
+                if (!isSignedIn) {
+                    setError('Vui lòng đăng nhập Google để xóa dữ liệu');
+                    return false;
+                }
+
                 setLoading(true);
                 try {
                     await db.clearRange(`${SHEET_NAME}!A${rowIndex}:M${rowIndex}`);
@@ -252,11 +325,6 @@
 
             const getDevicesByDepartment = (deptId) => filteredDevices.filter(d => d.departmentId === deptId);
 
-            const getDepartmentName = (deptId) => {
-                const dept = departments.find(d => d.id === deptId);
-                return dept ? dept.name : 'N/A';
-            };
-
             const getStatusIcon = (status) => {
                 switch(status) {
                     case 'active': return <CheckCircle className="w-5 h-5 text-green-500" />;
@@ -284,102 +352,15 @@
                                     <h1 className="text-3xl font-bold text-gray-800 mb-2">Quản Lý Thiết Bị Máy Móc</h1>
                                     <p className="text-gray-600">Đồng bộ với Google Sheets</p>
                                 </div>
-                                <Cloud className="w-16 h-16 text-blue-500" />
-                            </div>
-                        </div>
-
-                        {error && (
-                            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6 flex items-center">
-                                <AlertCircle className="w-5 h-5 mr-2" />
-                                {error}
-                            </div>
-                        )}
-
-                        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-                            <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
-                                <div className="relative flex-1 w-full">
-                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                                    <input
-                                        type="text"
-                                        placeholder="Tìm kiếm thiết bị..."
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                    />
-                                </div>
-                                <div className="flex gap-2">
+                                {!isSignedIn ? (
                                     <button
-                                        onClick={loadDataFromSheets}
-                                        disabled={loading}
-                                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 disabled:opacity-50"
+                                        onClick={handleSignIn}
+                                        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg flex items-center gap-2"
                                     >
-                                        <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
-                                        Tải lại
+                                        <LogIn className="w-5 h-5" />
+                                        Đăng nhập Google
                                     </button>
-                                    <button
-                                        onClick={() => setShowForm(!showForm)}
-                                        disabled={loading}
-                                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 disabled:opacity-50"
-                                    >
-                                        <Plus className="w-5 h-5" />
-                                        Thêm thiết bị
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        {loading && (
-                            <div className="flex justify-center items-center py-8">
-                                <div className="loading"></div>
-                            </div>
-                        )}
-
-                        {showForm && (
-                            <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-                                <h2 className="text-xl font-semibold mb-4">
-                                    {editingId ? 'Chỉnh sửa thiết bị' : 'Thêm thiết bị mới'}
-                                </h2>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Tên thiết bị *</label>
-                                        <input
-                                            type="text"
-                                            value={formData.name}
-                                            onChange={(e) => setFormData({...formData, name: e.target.value})}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Loại thiết bị *</label>
-                                        <select
-                                            value={formData.type}
-                                            onChange={(e) => setFormData({...formData, type: e.target.value})}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                        >
-                                            <option value="">-- Chọn loại --</option>
-                                            {deviceTypes.map((type, i) => <option key={i} value={type}>{type}</option>)}
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Phòng ban *</label>
-                                        <select
-                                            value={formData.departmentId}
-                                            onChange={(e) => setFormData({...formData, departmentId: parseInt(e.target.value)})}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                        >
-                                            <option value="">-- Chọn phòng ban --</option>
-                                            {departments.map(dept => <option key={dept.id} value={dept.id}>{dept.name}</option>)}
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Vị trí</label>
-                                        <input
-                                            type="text"
-                                            value={formData.location}
-                                            onChange={(e) => setFormData({...formData, location: e.target.value})}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                        />
-                                    </div>
+                                ) : (
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">Trạng thái</label>
                                         <select
@@ -422,9 +403,21 @@
                                                         onChange={(e) => setFormData({...formData, ramType: e.target.value})}
                                                         className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                                                     >
+                                                        <option value="">Loại</option>
+                                                        <option value="DDR3">DDR3</option>
+                                                        <option value="DDR4">DDR4</option>
+                                                        <option value="DDR5">DDR5</option>
+                                                    </select>
+                                                    <select
+                                                        value={formData.ramCapacity}
+                                                        onChange={(e) => setFormData({...formData, ramCapacity: e.target.value})}
+                                                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                                    >
+                                                        <option value="">Dung lượng</option>
+                                                        <option value="4GB">4GB</option>
+                                                        <option value="8GB">8GB</option>
                                                         <option value="16GB">16GB</option>
                                                         <option value="32GB">32GB</option>
-                                                        <option value="64GB">64GB</option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -480,7 +473,7 @@
                                     <div className="md:col-span-2 flex gap-3">
                                         <button
                                             onClick={handleSubmit}
-                                            disabled={loading}
+                                            disabled={loading || !isSignedIn}
                                             className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg disabled:opacity-50"
                                         >
                                             {editingId ? 'Cập nhật' : 'Thêm'}
@@ -522,7 +515,7 @@
                                                 <table className="w-full">
                                                     <thead className="bg-gray-50">
                                                         <tr>
-                                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tên thiết bị</th>
+                                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tên</th>
                                                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Loại</th>
                                                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cấu hình</th>
                                                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Vị trí</th>
@@ -534,7 +527,7 @@
                                                         {deptDevices.length === 0 ? (
                                                             <tr>
                                                                 <td colSpan="6" className="px-6 py-8 text-center text-gray-500">
-                                                                    Phòng ban này chưa có thiết bị nào
+                                                                    Phòng ban này chưa có thiết bị
                                                                 </td>
                                                             </tr>
                                                         ) : (
@@ -605,3 +598,4 @@
         ReactDOM.render(<DeviceManager />, document.getElementById('root'));
     </script>
 </body>
+</html>
